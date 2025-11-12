@@ -1,0 +1,53 @@
+/* 1. Подключаем жирный шрифт Montserrat из Google */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
+
+/* 2. Глобальный сброс (убираем отступы браузера) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 3. Настройки экрана */
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: #000000; /* Глубокий черный фон */
+  overflow: hidden; /* Блокируем прокрутку, чтобы экран не "ездил" */
+}
+
+/* 4. Контейнер приложения */
+#root {
+  width: 100vw;
+  height: 100dvh; /* Dynamic Height - чтобы на айфонах меню не перекрывало */
+  display: flex;
+  justify-content: center; /* Центр по горизонтали */
+  align-items: center;     /* Центр по вертикали */
+}
+
+/* 5. Стили нашей надписи */
+.soon-container {
+  text-align: center;
+  /* Запрещаем пользователю выделять текст пальцем */
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;        /* Самый жирный */
+  font-size: 15vw;         /* Размер зависит от ширины экрана (15%) */
+  color: #ffffff;          /* Белый текст */
+  text-transform: uppercase; /* Все буквы большие */
+  line-height: 1;          /* Плотный интерлиньяж */
+  letter-spacing: -2px;    /* Буквы плотно друг к другу */
+  
+  /* Неоновое свечение (Тень) */
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 
+               0 0 40px rgba(255, 255, 255, 0.2);
+}
+
+.dots {
+  color: #3390ec; /* Телеграмовский синий для точек */
+}
