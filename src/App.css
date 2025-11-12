@@ -1,22 +1,33 @@
+/* Для React */
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0; /* Убираем отступы */
   text-align: center;
 }
 
+/* Общие стили приложения */
 .App {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #282c34; 
-  color: white; 
+  min-height: 100vh; /* Занимает всю высоту экрана */
+  background-color: #1a1a1a; /* Очень темный фон */
+  color: white; /* Белый текст */
+  /* Запрет на масштабирование */
+  user-select: none; /* Запрещает выделение текста */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Chrome/Safari/Opera */
+  -khtml-user-select: none; /* Konqueror */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+  touch-action: manipulation; /* Предотвращает двойной тап для зума */
 }
 
+/* Стили для заголовка, чтобы он занимал всю высоту и центрировал */
 .App-header {
-  min-height: 100vh;
+  min-height: 100vh; /* Растягиваем на всю высоту */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,3 +35,23 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+
+/* Стиль для самой надписи "Soon..." */
+.soon-text {
+  /* Подключаем Google Font Montserrat */
+  font-family: 'Montserrat', sans-serif;
+  font-size: 8vw; /* Размер шрифта, адаптирующийся к ширине экрана */
+  font-weight: 800; /* Очень жирный */
+  color: #61dafb; /* Цвет React-а, можно изменить */
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); /* Небольшая тень для объема */
+  margin: 0; /* Убираем стандартные отступы параграфа */
+  /* Дополнительные свойства для предотвращения масштабирования */
+  -webkit-text-size-adjust: none; /* Safari/iOS */
+  text-size-adjust: none; /* Other browsers */
+  white-space: nowrap; /* Не переносить на новую строку */
+}
+
+/* Стили для ссылок на Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
+
+/* Удалите любые другие стили, которые были в App.css */
