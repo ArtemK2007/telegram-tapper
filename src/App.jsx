@@ -1,16 +1,18 @@
-import React from 'react';
-import './App.css';
+// src/main.jsx
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p className="soon-text">
-          Soon...
-        </p>
-      </header>
-    </div>
-  );
+// Инициализация Telegram Web App
+if (window.Telegram && window.Telegram.WebApp) {
+  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
 }
+// Остальной код файла main.jsx
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import './index.css' // Здесь могут быть глобальные стили, влияющие на body
 
-export default App;
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)

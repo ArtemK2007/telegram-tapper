@@ -1,9 +1,25 @@
-/* Для React */
+/* Подключение Google Fonts: Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
+
+/* Сброс стандартных стилей браузера для всего документа */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Запрещает прокрутку, если что-то вылезло */
+}
+
+/* Корневой элемент React */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0; /* Убираем отступы */
-  text-align: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex; /* Используем flexbox для центрирования */
+  justify-content: center; /* Центрирование по горизонтали */
+  align-items: center; /* Центрирование по вертикали */
+  text-align: center; /* Центрирование текста внутри */
 }
 
 /* Общие стили приложения */
@@ -12,9 +28,11 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh; /* Занимает всю высоту экрана */
+  width: 100%; /* Должен занимать 100% ширины */
+  min-height: 100vh; /* Занимает всю высоту экрана (от viewport) */
   background-color: #1a1a1a; /* Очень темный фон */
   color: white; /* Белый текст */
+
   /* Запрет на масштабирование */
   user-select: none; /* Запрещает выделение текста */
   -webkit-touch-callout: none; /* iOS Safari */
@@ -27,7 +45,7 @@
 
 /* Стили для заголовка, чтобы он занимал всю высоту и центрировал */
 .App-header {
-  min-height: 100vh; /* Растягиваем на всю высоту */
+  width: 100%; /* Убедимся, что header занимает всю доступную ширину */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,20 +56,15 @@
 
 /* Стиль для самой надписи "Soon..." */
 .soon-text {
-  /* Подключаем Google Font Montserrat */
   font-family: 'Montserrat', sans-serif;
   font-size: 8vw; /* Размер шрифта, адаптирующийся к ширине экрана */
   font-weight: 800; /* Очень жирный */
   color: #61dafb; /* Цвет React-а, можно изменить */
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); /* Небольшая тень для объема */
   margin: 0; /* Убираем стандартные отступы параграфа */
+  
   /* Дополнительные свойства для предотвращения масштабирования */
   -webkit-text-size-adjust: none; /* Safari/iOS */
   text-size-adjust: none; /* Other browsers */
   white-space: nowrap; /* Не переносить на новую строку */
 }
-
-/* Стили для ссылок на Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
-
-/* Удалите любые другие стили, которые были в App.css */
