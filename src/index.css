@@ -163,3 +163,84 @@ html, body, #root {
   transition: width 0.2s linear; 
   box-shadow: 0 0 8px var(--color-energy-fill); /* Неоновое свечение полоски */
 }
+
+/* --- СТИЛИ SHELL И КОНТЕНТА --- */
+
+/* Главный контейнер (App-Shell) теперь использует Grid/Flex для разделения */
+.app-shell {
+  padding: 0; /* Убираем главный padding, чтобы панель прилипла к низу */
+  justify-content: flex-start; /* Начинаем элементы сверху */
+}
+
+/* Область, где рендерятся страницы */
+.content-area {
+  flex-grow: 1; /* Занимает все вертикальное пространство */
+  width: 100%;
+  padding: 20px;
+  overflow-y: auto; /* Если страница будет длинной, тут будет скролл */
+  display: flex; /* Чтобы центрировать контент на TasksScreen */
+  justify-content: center;
+}
+
+/* Стиль для TOP UI (Новый заголовок) */
+.top-ui {
+    padding: 15px 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--color-dark-bg);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.view-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--color-secondary-cyan);
+    text-transform: uppercase;
+}
+
+
+/* --- СТИЛИ ПАНЕЛИ НАВИГАЦИИ (ТАБ-БАР) --- */
+
+.tab-bar {
+  width: 100%;
+  height: 70px; /* Фиксированная высота */
+  background-color: #1a1a1a;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-around; /* Равномерно распределяем кнопки */
+  align-items: center;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  color: #777; /* Неактивный цвет */
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: color 0.2s;
+  padding: 5px 10px;
+}
+
+.tab-button:hover:not(.active) {
+    color: #aaa;
+}
+
+.tab-button.active {
+  color: var(--color-secondary-cyan); /* Активный цвет */
+  text-shadow: 0 0 5px rgba(51, 144, 236, 0.5);
+}
+
+.tab-button span {
+    font-size: 20px;
+}
