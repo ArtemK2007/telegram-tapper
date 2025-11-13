@@ -12,7 +12,7 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
       
       {/* Верхняя панель: Монеты (БЕЗ ИКОНКИ, так как иконка будет в App.jsx) */}
       <div className="header">
-        <h1 className="score">{points.toLocaleString()}</h1>
+        <h1 className="score">{(points ?? 0).toLocaleString()}</h1>
       </div>
 
       {/* Центр: Кнопка тапа */}
