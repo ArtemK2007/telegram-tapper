@@ -1,120 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
-
-/* Сброс и база */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  user-select: none; /* Запрет выделения */
-  -webkit-user-select: none;
-}
-
-body {
-  background-color: #000000;
-  color: white;
-  font-family: 'Montserrat', sans-serif;
-  overflow: hidden; /* Никакой прокрутки */
-}
-
-/* Главный контейнер на весь экран */
-.game-container {
-  width: 100vw;
-  height: 100dvh; /* dynamic viewport height */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* Раскидываем элементы: верх, центр, низ */
-  padding: 20px;
-  padding-top: 40px;
-  padding-bottom: 40px;
-}
-
-/* --- ВЕРХ: СЧЕТ --- */
-.header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.coin-icon {
-  font-size: 40px;
-}
-
-.score {
-  font-size: 48px;
-  font-weight: 900;
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-}
-
-/* --- ЦЕНТР: КНОПКА --- */
+/* --- ЦЕНТР: КНОПКА-КАРТИНКА --- */
 .tap-area {
-  flex-grow: 1; /* Занимает все свободное место */
+  flex-grow: 1;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+/* Сама кнопка теперь прозрачная, она просто контейнер */
 .tap-button {
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  border: none;
-  /* Градиентный фон */
-  background: radial-gradient(circle, #3390ec 0%, #004e92 100%);
-  box-shadow: 0 0 30px rgba(51, 144, 236, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.2);
-  
-  color: white;
-  font-size: 32px;
-  font-weight: 900;
+  background: none; /* Убираем фон */
+  border: none;     /* Убираем рамку */
+  outline: none;    /* Убираем обводку при нажатии */
   cursor: pointer;
+  width: 280px;     /* Размер кнопки можно менять тут */
+  height: 280px;
   
   /* Анимация нажатия */
-  transition: transform 0.1s, box-shadow 0.1s;
-  touch-action: manipulation; /* Важно для быстрой реакции на тап */
+  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Пружинистый эффект */
   -webkit-tap-highlight-color: transparent; /* Убирает синий квадрат на Андроиде */
 }
 
-/* Эффект при нажатии */
-.tap-button:active {
-  transform: scale(0.95); /* Уменьшается */
-  box-shadow: 0 0 15px rgba(51, 144, 236, 0.6);
-}
-
-/* Если нет энергии */
-.tap-button:disabled {
-  background: #333;
-  box-shadow: none;
-  color: #777;
-  cursor: not-allowed;
-}
-
-/* --- НИЗ: ЭНЕРГИЯ --- */
-.footer {
+/* Настройки самой картинки внутри */
+.tap-button img {
   width: 100%;
-  max-width: 400px;
-  align-self: center;
-}
-
-.energy-text {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: #aaa;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 12px;
-  background-color: #222;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid #333;
-}
-
-.progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #f1c40f, #f39c12); /* Золотой цвет */
-  transition: width 0.2s linear; /* Плавное движение полоски */
+  object-fit: contain; /* Чтобы картинка не сплющилась */
+  pointer-events: none; /* Важно: чтобы клик проходил сквозь картинку на кнопку */
+  filter: drop-shadow(0 0 15px rgba(51, 144, 236, 0.4)); /* Тень вокруг картинки */
+}
+
+/* Эффект при нажатии (уменьшение) */
+.tap-button:active {
+  transform: scale(0.90); 
+}
+
+/* Если нет энергии (картинка становится черно-белой и прозрачной) */
+.tap-button:disabled {
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tap-button:disabled img {
+  filter: grayscale(100%) opacity(0.5);
 }

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
+// 👇 1. ИМПОРТИРУЕМ КАРТИНКУ
+import tapImage from './assets/tap.png'; 
+import './App.css'; // Убедись, что стили подключены (или index.css)
 
 function App() {
-  // 1. Состояние (State) - наша "оперативная память"
-  // Читаем из localStorage при запуске, или ставим 0, если там пусто
   const [points, setPoints] = useState(() => {
     const saved = localStorage.getItem('points');
     return saved ? parseInt(saved) : 0;
   });
 
-  // Энергия: макс 1000
   const [energy, setEnergy] = useState(() => {
     const saved = localStorage.getItem('energy');
     return saved ? parseInt(saved) : 1000;
@@ -16,12 +16,26 @@ function App() {
 
   const MAX_ENERGY = 1000;
 
-  // 2. Сохраняем данные в "память телефона" при каждом изменении
   useEffect(() => {
     localStorage.setItem('points', points.toString());
     localStorage.setItem('energy', energy.toString());
   }, [points, energy]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEnergy((prev) => (prev < MAX_ENERGY ? prev + 1 : prev));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleTap = () => {
+    if (energy <= 0) return;
+    setPoints((prev) => prev + 1);
+    setEnergy((prev) => prev - 1);
+    if (window.navigator.vibrate) window.navigator.vibrate(50);
+  };
+
+  // ...
   // 3. Регенерация энергии (восстанавливаем 1 ед. каждую секунду)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -31,50 +45,71 @@ function App() {
         }
         return prevEnergy;
       });
-    }, 1000); // 1000 мс = 1 секунда
+    }, 1000); 
 
-    return () => clearInterval(interval); // Чистим таймер при выходе
+    return () => clearInterval(interval); 
   }, []);
 
-  // 4. Функция клика (Тап)
-  const handleTap = (e) => {
-    // Если энергии нет - выходим
-    if (energy <= 0) return;
+  // 👇 НОВЫЙ БЛОК: 4. Блокировка масштабирования и зума
+  useEffect(() => {
+    // 1. Блокировка зума колесом (Ctrl + Wheel)
+    const handleWheel = (e) => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+      }
+    };
 
-    // Анимация клика (маленький визуальный эффект координат)
-    // Тут можно добавить сложные анимации вылетающих цифр, пока просто логика
+    // 2. Блокировка зума кнопками (Ctrl + / Ctrl -)
+    const handleKeydown = (e) => {
+      if (
+        (e.ctrlKey || e.metaKey) && // Ctrl или Cmd (на Mac)
+        (e.key === '+' || e.key === '-' || e.key === '=')
+      ) {
+        e.preventDefault();
+      }
+    };
 
-    // Обновляем состояния
-    setPoints((prev) => prev + 1);
-    setEnergy((prev) => prev - 1);
+    // 3. Блокировка жестов на тачпадах/экранах (Pinch-to-zoom)
+    const handleTouchMove = (e) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    };
 
-    // Вибрация телефона (работает на Android в Chrome/TG)
-    if (window.navigator.vibrate) {
-        window.navigator.vibrate(50);
-    }
-  };
+    // Добавляем слушателей
+    document.addEventListener('wheel', handleWheel, { passive: false });
+    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    // Очистка при выходе
+    return () => {
+      document.removeEventListener('wheel', handleWheel);
+      document.removeEventListener('keydown', handleKeydown);
+      document.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []); // Пустой массив зависимостей означает, что код выполнится один раз при старте
+  
+  // ... (Дальше идет handleTap и return)
 
   return (
     <div className="game-container">
       
-      {/* Верхняя панель: Монеты */}
       <div className="header">
         <span className="coin-icon">💎</span>
         <h1 className="score">{points.toLocaleString()}</h1>
       </div>
 
-      {/* Центр: Кнопка тапа */}
       <div className="tap-area">
+        {/* 👇 2. КНОПКА ТЕПЕРЬ СОДЕРЖИТ КАРТИНКУ */}
         <button 
           className="tap-button" 
           onClick={handleTap}
-          disabled={energy <= 0} // Блокируем, если нет энергии
+          disabled={energy <= 0}
         >
-          TAP
+          <img src={tapImage} alt="Tap Me" draggable="false" />
         </button>
       </div>
 
-      {/* Низ: Энергия */}
       <div className="footer">
         <div className="energy-text">
           <span>⚡ Energy</span>
