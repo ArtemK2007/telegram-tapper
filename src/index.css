@@ -190,3 +190,77 @@ html, body, #root {
   margin-right: 6px;
   color: var(--color-gold);
 }
+
+/* --- СТИЛИ МОДАЛЬНОГО ОКНА --- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.9); /* Темный фон */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Поверх всех элементов */
+}
+
+.name-modal {
+    background-color: var(--color-dark-bg);
+    border: 2px solid var(--color-accent-cyan);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 0 40px var(--color-accent-cyan);
+    max-width: 90%;
+    text-align: center;
+}
+
+.modal-title {
+    color: var(--color-primary-gold);
+    font-size: 24px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 5px var(--color-primary-gold);
+}
+
+.modal-text {
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.name-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    background-color: #1a1a1a;
+    border: 1px solid var(--color-accent-cyan);
+    color: white;
+    font-size: 16px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.name-input:focus {
+    border-color: var(--color-primary-gold);
+}
+
+.submit-button {
+    background-color: var(--color-accent-cyan);
+    color: var(--color-dark-bg);
+    font-weight: 900;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.submit-button:hover:not(:disabled) {
+    background-color: var(--color-primary-gold);
+}
+
+.submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

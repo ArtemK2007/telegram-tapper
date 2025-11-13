@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-// 1. ИМПОРТЫ
+// Импорт клиента Supabase и нового модального окна
 import { supabase } from './supabaseClient'; 
 import TapperScreen from './TapperScreen';
 import TasksScreen from './TasksScreen';
 import coinIconImage from './assets/coin.png'; 
+import NameModal from './NameModal'; // 👈 ИМПОРТ МОДАЛЬНОГО ОКНА
 import './App.css'; 
 
 function App() {
@@ -11,20 +12,22 @@ function App() {
   const [user, setUser] = useState(null); 
   const [loading, setLoading] = useState(true); 
   const [activeView, setActiveView] = useState('tapper'); 
-
-  // [GAME STATE] - Всегда начинаем с 0/1000 до загрузки с сервера
+  
+  // Флаги для авторизации
+  const [needsName, setNeedsName] = useState(false); // 👈 ФЛАГ: Просит имя
+  
+  // [GAME STATE]
   const [points, setPoints] = useState(0); 
   const [energy, setEnergy] = useState(1000);
   const MAX_ENERGY = 1000;
   const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0); 
-  const [isNewUser, setIsNewUser] = useState(false); // Флаг для первого входа
 
   // 2. БЛОКИ USEEFFECT и ЛОГИКА
 
   // 2.1. АВТОРИЗАЦИЯ И ЗАГРУЗКА ДАННЫХ (Главный useEffect)
   useEffect(() => {
     async function getAuth() {
-      // 1. Проверка существующей сессии
+      // 1. Проверка существующей сессии (Supabase сам ищет токен в localStorage)
       const { data: { user: existingUser } } = await supabase.auth.getUser();
 
       if (existingUser) {
@@ -35,8 +38,8 @@ function App() {
         const { data: { user: newUser } } = await supabase.auth.signInAnonymously();
         if (newUser) {
           setUser(newUser);
-          setIsNewUser(true); // Отмечаем, что это новый пользователь
-          await initializeNewPlayer(newUser.id);
+          // Продолжаем логику в loadPlayerData, где проверим наличие записи в таблице players
+          await loadPlayerData(newUser.id);
         } else {
           setLoading(false); 
         }
@@ -44,46 +47,55 @@ function App() {
     }
 
     async function loadPlayerData(userId) {
+      // 3. Загрузка данных игрока из таблицы players
       const { data, error } = await supabase
         .from('players')
-        .select(`points, energy_current`)
+        .select(`username, points, energy_current`)
         .eq('id', userId)
         .single(); 
 
       if (data) {
         setPoints(data.points);
         setEnergy(data.energy_current);
-      } else if (error && error.code === 'PGRST116') { // Игрок не найден в таблице
-        await initializeNewPlayer(userId);
+        setNeedsName(false); // Данные найдены, модал не нужен
+      } else if (error && error.code === 'PGRST116') { 
+        // 🛑 Ошибка 'PGRST116' (404 Not Found) - Игрока нет в таблице players. Просим имя.
+        setNeedsName(true); 
       }
       setLoading(false);
     }
     
-    async function initializeNewPlayer(userId) {
-      const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-      
-      // 1. ПЫТАЕМСЯ ПОЛУЧИТЬ ЛОГИН, ЕСЛИ ЕГО НЕТ, ТО ИМЯ
-      const tgUsername = tgUser?.username || 
-                        tgUser?.first_name || 
-                        'Anonymous'; 
+    // Запускаем процесс авторизации при старте
+    getAuth(); 
+  }, []); 
 
+  // 2.2. Функция, которая вызывается после ввода имени
+  async function handleNameSubmit(username) {
+      if (!user) return; 
+      setLoading(true);
+      await initializeNewPlayer(user.id, username); // Запускаем инициализацию с именем
+  }
+
+  // 2.3. Функция инициализации НОВОГО игрока
+  async function initializeNewPlayer(userId, username) {
       const { error } = await supabase
-        .from('players')
-        .insert({ 
-          id: userId, 
-          username: tgUsername, // ✅ ИСПОЛЬЗУЕМ НОВОЕ, БОЛЕЕ НАДЕЖНОЕ ЗНАЧЕНИЕ
-          points: 0, 
-          energy_current: 1000
-        });
+          .from('players')
+          .insert({ 
+              id: userId, 
+              username: username, // ✅ ИСПОЛЬЗУЕМ ВВЕДЕННОЕ ИМЯ
+              points: 0, 
+              energy_current: 1000
+          });
       
       if (!error) {
-        setPoints(0);
-        setEnergy(1000);
+          setPoints(0);
+          setEnergy(1000);
+          setNeedsName(false); // Скрываем модальное окно
       }
       setLoading(false);
-    }
+  }
 
-  // 2.2. Регенерация энергии
+  // 2.4. Регенерация энергии
   useEffect(() => {
     const interval = setInterval(() => {
       setEnergy((prevEnergy) => (prevEnergy < MAX_ENERGY ? prevEnergy + 1 : prevEnergy));
@@ -91,11 +103,11 @@ function App() {
     return () => clearInterval(interval); 
   }, []);
 
-  // 2.3. Блокировка масштабирования 
+  // 2.5. Блокировка масштабирования 
   useEffect(() => {
     const handleWheel = (e) => { if (e.ctrlKey) e.preventDefault(); };
     const handleKeydown = (e) => { 
-      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=')) e.preventDefault(); 
+      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=') ) e.preventDefault(); 
     };
     const handleTouchMove = (e) => { if (e.touches.length > 1) e.preventDefault(); };
 
@@ -110,10 +122,10 @@ function App() {
     };
   }, []);
 
-  // 2.4. Сохранение данных в базу данных с Debounce
+  // 2.6. Сохранение данных в базу данных с Debounce
   useEffect(() => {
     // ВЫХОД: Если буфер пуст ИЛИ user не загружен
-    if (tapsSinceLastSave === 0 || !user) return;
+    if (tapsSinceLastSave === 0 || !user || loading) return;
 
     const saveToDatabase = async () => {
       const finalPoints = points; 
@@ -137,11 +149,11 @@ function App() {
       }
     };
     
-    const timeoutId = setTimeout(saveToDatabase, 800); 
+    const timeoutId = setTimeout(saveToDatabase, 800); // 800 мс Debounce
 
     return () => clearTimeout(timeoutId);
 
-  }, [tapsSinceLastSave, points, energy, user]); 
+  }, [tapsSinceLastSave, user]); // Следим только за тапами и пользователем
 
   // 3. Функция клика (handleTap)
   const handleTap = () => {
@@ -154,7 +166,9 @@ function App() {
     if (window.navigator.vibrate) window.navigator.vibrate(50);
   };
   
-  // 4. ЭКРАН ЗАГРУЗКИ
+  // 4. ГЛАВНЫЙ РЕНДЕРИНГ (УСЛОВИЯ)
+  
+  // 4.1. ЭКРАН ЗАГРУЗКИ
   if (loading || !user) {
     return (
       <div className="game-container app-shell" style={{justifyContent: 'center'}}>
@@ -163,7 +177,12 @@ function App() {
     );
   }
 
-  // 5. РЕНДЕРИНГ
+  // 4.2. ЭКРАН ВВОДА ИМЕНИ
+  if (needsName) {
+      return <NameModal onSubmit={handleNameSubmit} isLoading={loading} />;
+  }
+  
+  // 4.3. ФУНКЦИЯ РЕНДЕРИНГА ГЛАВНОГО КОНТЕНТА
   const renderView = () => {
     if (activeView === 'tapper') {
       return (
@@ -179,6 +198,7 @@ function App() {
     }
   };
 
+  // 5. ОСНОВНОЙ UI ИГРЫ
   return (
     <div className="game-container app-shell">
       
