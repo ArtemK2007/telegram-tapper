@@ -1,29 +1,28 @@
 /* === 1. ПАЛИТРА И ШРИФТ === */
 :root {
   --color-bg: #0d0d0d;
-  --color-text: #ffffff;
-  --color-accent: #00bfa6;
-  --color-muted: #555;
+  --color-surface: #141414;
+  --color-text: #f5f5f5;
+  --color-accent: #00c2a1;
+  --color-muted: #777;
   --color-gold: #f5c400;
-  --color-progress-bg: #1e1e1e;
-  --font-base: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Roboto", "Segoe UI", system-ui, sans-serif;
+  --color-progress-bg: #1b1b1b;
+  --font-base: -apple-system, BlinkMacSystemFont, "Inter", "Roboto", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
 }
 
 /* === 2. БАЗА === */
-/* Убираем импорт Inter, так как теперь используем системный шрифт */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body, #root {
   width: 100%;
   height: 100%;
-  background-color: var(--color-bg);
+  background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-base);
   overflow: hidden;
@@ -33,11 +32,9 @@ html, body, #root {
 .game-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   height: 100dvh;
-  width: 100vw;
-  background: var(--color-bg);
 }
 
 /* === 4. ВЕРХНЯЯ ПАНЕЛЬ === */
@@ -47,101 +44,88 @@ html, body, #root {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  z-index: 5;
-}
-
-.coin-icon {
-  width: 36px;
-  height: 36px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .view-title {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   color: var(--color-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 /* === 5. ИГРОВАЯ ОБЛАСТЬ === */
 .game-screen {
-  flex-grow: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
-  width: 100%;
-  padding: 0;
-}
-
-.header {
-  margin-top: 24px;
+  justify-content: center;
   text-align: center;
 }
 
 .score {
-  font-size: clamp(42px, 8vw, 64px);
-  font-weight: 800;
+  font-size: clamp(40px, 8vw, 60px);
+  font-weight: 700;
   color: var(--color-gold);
-  letter-spacing: -1px;
 }
 
 /* === 6. TAP-КНОПКА === */
 .tap-area {
-  flex-grow: 1;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .tap-button {
-  width: min(260px, 70vw);
-  height: min(260px, 70vw);
+  width: min(240px, 70vw);
+  height: min(240px, 70vw);
   border: none;
   border-radius: 50%;
-  background: #1a1a1a;
+  background: var(--color-surface);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.1s ease, background 0.2s ease;
   cursor: pointer;
-  transition: transform 0.08s ease, background 0.15s ease;
-  outline: none;
 }
 
 .tap-button img {
-  width: 70%;
-  height: 70%;
-  object-fit: contain;
+  width: 65%;
+  height: 65%;
   opacity: 0.9;
+  object-fit: contain;
   pointer-events: none;
 }
 
 .tap-button:active {
   transform: scale(0.94);
-  background: #151515;
+  background: #111;
 }
 
 /* === 7. ЭНЕРГИЯ === */
 .footer {
   width: 100%;
-  max-width: 400px;
-  margin-bottom: 18px;
+  max-width: 380px;
+  padding: 0 16px 20px;
 }
 
 .energy-text {
   display: flex;
   justify-content: space-between;
   color: var(--color-muted);
-  font-weight: 600;
   font-size: 13px;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .progress-bar {
   width: 100%;
-  height: 12px;
-  background-color: var(--color-progress-bg);
-  border-radius: 6px;
+  height: 10px;
+  background: var(--color-progress-bg);
+  border-radius: 5px;
   overflow: hidden;
 }
 
@@ -155,9 +139,9 @@ html, body, #root {
 /* === 8. ТАБ-БАР === */
 .tab-bar {
   width: 100%;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.03);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  height: 56px;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -167,8 +151,8 @@ html, body, #root {
   border: none;
   background: none;
   color: var(--color-muted);
-  font-weight: 600;
   font-size: 13px;
+  font-weight: 500;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -180,87 +164,72 @@ html, body, #root {
   color: var(--color-accent);
 }
 
-.tab-button span {
-  font-size: 20px;
-}
-
-.coin-icon-inline {
-  width: 28px;
-  height: 28px;
-  margin-right: 6px;
-  color: var(--color-gold);
-}
-
-/* --- СТИЛИ МОДАЛЬНОГО ОКНА --- */
-
+/* === 9. МОДАЛЬНОЕ ОКНО === */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.9); /* Темный фон */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Поверх всех элементов */
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
 }
 
 .name-modal {
-    background-color: var(--color-dark-bg);
-    border: 2px solid var(--color-accent-cyan);
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 0 40px var(--color-accent-cyan);
-    max-width: 90%;
-    text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: 10px;
+  padding: 24px;
+  width: min(90%, 360px);
+  text-align: center;
 }
 
 .modal-title {
-    color: var(--color-primary-gold);
-    font-size: 24px;
-    margin-bottom: 10px;
-    text-shadow: 0 0 5px var(--color-primary-gold);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-gold);
+  margin-bottom: 10px;
 }
 
 .modal-text {
-    color: #ccc;
-    margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--color-muted);
+  margin-bottom: 16px;
 }
 
 .name-input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 20px;
-    background-color: #1a1a1a;
-    border: 1px solid var(--color-accent-cyan);
-    color: white;
-    font-size: 16px;
-    border-radius: 6px;
-    outline: none;
-    transition: border-color 0.3s;
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: var(--color-text);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease;
 }
 
 .name-input:focus {
-    border-color: var(--color-primary-gold);
+  border-color: var(--color-accent);
 }
 
 .submit-button {
-    background-color: var(--color-accent-cyan);
-    color: var(--color-dark-bg);
-    font-weight: 900;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.1s;
+  margin-top: 14px;
+  background: var(--color-accent);
+  color: #000;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
 }
 
-.submit-button:hover:not(:disabled) {
-    background-color: var(--color-primary-gold);
+.submit-button:hover {
+  transform: scale(1.02);
 }
 
 .submit-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
