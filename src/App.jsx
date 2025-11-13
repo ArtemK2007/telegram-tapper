@@ -73,7 +73,22 @@ function App() {
   async function handleNameSubmit(username) {
       if (!user) return; 
       setLoading(true);
-      await initializeNewPlayer(user.id, username); // Запускаем инициализацию с именем
+
+      // 🛑 1. ПРОВЕРКА НА УНИКАЛЬНОСТЬ
+      const { data, error: selectError } = await supabase
+          .from('players')
+          .select('username') // Нам достаточно запросить имя
+          .eq('username', username); // Ищем совпадения
+
+      if (data && data.length > 0) {
+          // Имя найдено в базе!
+          alert(`Имя "${username}" уже занято! Выберите другое.`); 
+          setLoading(false);
+          return; // Останавливаем выполнение
+      }
+      
+      // 2. Если имя уникально, запускаем инициализацию и сохранение
+      await initializeNewPlayer(user.id, username);
   }
 
   // 2.3. Функция инициализации НОВОГО игрока
