@@ -81,8 +81,8 @@ html, body, #root {
 }
 
 .tap-button {
-  width: 380px;
-  height: 380px;
+  width: min(300px, 80vw);
+  height: min(300px, 80vw);
   border: none;
   border-radius: 50%;
   background: var(--color-surface);
@@ -94,8 +94,8 @@ html, body, #root {
 }
 
 .tap-button img {
-  width: 65%;
-  height: 65%;
+  width: 85%;
+  height: 85%;
   opacity: 0.9;
   object-fit: contain;
   pointer-events: none;
