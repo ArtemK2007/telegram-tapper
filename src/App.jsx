@@ -60,13 +60,18 @@ function App() {
     }
     
     async function initializeNewPlayer(userId) {
-      const tgUsername = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'Anonymous'; 
+      const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
       
+      // 1. ПЫТАЕМСЯ ПОЛУЧИТЬ ЛОГИН, ЕСЛИ ЕГО НЕТ, ТО ИМЯ
+      const tgUsername = tgUser?.username || 
+                        tgUser?.first_name || 
+                        'Anonymous'; 
+
       const { error } = await supabase
         .from('players')
         .insert({ 
           id: userId, 
-          username: tgUsername, // Используем реальный логин
+          username: tgUsername, // ✅ ИСПОЛЬЗУЕМ НОВОЕ, БОЛЕЕ НАДЕЖНОЕ ЗНАЧЕНИЕ
           points: 0, 
           energy_current: 1000
         });
@@ -77,9 +82,6 @@ function App() {
       }
       setLoading(false);
     }
-
-    getAuth(); 
-  }, []); 
 
   // 2.2. Регенерация энергии
   useEffect(() => {
