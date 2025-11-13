@@ -1,53 +1,120 @@
-/* 1. Подключаем жирный шрифт Montserrat из Google */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
 
-/* 2. Глобальный сброс (убираем отступы браузера) */
+/* Сброс и база */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-/* 3. Настройки экрана */
-html, body {
-  width: 100%;
-  height: 100%;
-  background-color: #000000; /* Глубокий черный фон */
-  overflow: hidden; /* Блокируем прокрутку, чтобы экран не "ездил" */
-}
-
-/* 4. Контейнер приложения */
-#root {
-  width: 100vw;
-  height: 100dvh; /* Dynamic Height - чтобы на айфонах меню не перекрывало */
-  display: flex;
-  justify-content: center; /* Центр по горизонтали */
-  align-items: center;     /* Центр по вертикали */
-}
-
-/* 5. Стили нашей надписи */
-.soon-container {
-  text-align: center;
-  /* Запрещаем пользователю выделять текст пальцем */
-  user-select: none;
+  user-select: none; /* Запрет выделения */
   -webkit-user-select: none;
-  touch-action: manipulation;
 }
 
-.title {
+body {
+  background-color: #000000;
+  color: white;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 900;        /* Самый жирный */
-  font-size: 15vw;         /* Размер зависит от ширины экрана (15%) */
-  color: #ffffff;          /* Белый текст */
-  text-transform: uppercase; /* Все буквы большие */
-  line-height: 1;          /* Плотный интерлиньяж */
-  letter-spacing: -2px;    /* Буквы плотно друг к другу */
-  
-  /* Неоновое свечение (Тень) */
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 
-               0 0 40px rgba(255, 255, 255, 0.2);
+  overflow: hidden; /* Никакой прокрутки */
 }
 
-.dots {
-  color: #3390ec; /* Телеграмовский синий для точек */
+/* Главный контейнер на весь экран */
+.game-container {
+  width: 100vw;
+  height: 100dvh; /* dynamic viewport height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Раскидываем элементы: верх, центр, низ */
+  padding: 20px;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+/* --- ВЕРХ: СЧЕТ --- */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.coin-icon {
+  font-size: 40px;
+}
+
+.score {
+  font-size: 48px;
+  font-weight: 900;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+/* --- ЦЕНТР: КНОПКА --- */
+.tap-area {
+  flex-grow: 1; /* Занимает все свободное место */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tap-button {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  border: none;
+  /* Градиентный фон */
+  background: radial-gradient(circle, #3390ec 0%, #004e92 100%);
+  box-shadow: 0 0 30px rgba(51, 144, 236, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.2);
+  
+  color: white;
+  font-size: 32px;
+  font-weight: 900;
+  cursor: pointer;
+  
+  /* Анимация нажатия */
+  transition: transform 0.1s, box-shadow 0.1s;
+  touch-action: manipulation; /* Важно для быстрой реакции на тап */
+  -webkit-tap-highlight-color: transparent; /* Убирает синий квадрат на Андроиде */
+}
+
+/* Эффект при нажатии */
+.tap-button:active {
+  transform: scale(0.95); /* Уменьшается */
+  box-shadow: 0 0 15px rgba(51, 144, 236, 0.6);
+}
+
+/* Если нет энергии */
+.tap-button:disabled {
+  background: #333;
+  box-shadow: none;
+  color: #777;
+  cursor: not-allowed;
+}
+
+/* --- НИЗ: ЭНЕРГИЯ --- */
+.footer {
+  width: 100%;
+  max-width: 400px;
+  align-self: center;
+}
+
+.energy-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #aaa;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background-color: #222;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f1c40f, #f39c12); /* Золотой цвет */
+  transition: width 0.2s linear; /* Плавное движение полоски */
 }

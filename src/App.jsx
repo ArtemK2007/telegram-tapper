@@ -1,50 +1,93 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function App() {
+  // 1. Состояние (State) - наша "оперативная память"
+  // Читаем из localStorage при запуске, или ставим 0, если там пусто
+  const [points, setPoints] = useState(() => {
+    const saved = localStorage.getItem('points');
+    return saved ? parseInt(saved) : 0;
+  });
 
+  // Энергия: макс 1000
+  const [energy, setEnergy] = useState(() => {
+    const saved = localStorage.getItem('energy');
+    return saved ? parseInt(saved) : 1000;
+  });
+
+  const MAX_ENERGY = 1000;
+
+  // 2. Сохраняем данные в "память телефона" при каждом изменении
   useEffect(() => {
-    // 1. Функция блокировки зума колесом (Ctrl + Wheel)
-    const handleWheel = (e) => {
-      if (e.ctrlKey) {
-        e.preventDefault();
-      }
-    };
+    localStorage.setItem('points', points.toString());
+    localStorage.setItem('energy', energy.toString());
+  }, [points, energy]);
 
-    // 2. Функция блокировки зума кнопками (Ctrl + / Ctrl -)
-    const handleKeydown = (e) => {
-      if (
-        (e.ctrlKey || e.metaKey) && // Ctrl или Cmd (на Mac)
-        (e.key === '+' || e.key === '-' || e.key === '=')
-      ) {
-        e.preventDefault();
-      }
-    };
+  // 3. Регенерация энергии (восстанавливаем 1 ед. каждую секунду)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEnergy((prevEnergy) => {
+        if (prevEnergy < MAX_ENERGY) {
+          return prevEnergy + 1;
+        }
+        return prevEnergy;
+      });
+    }, 1000); // 1000 мс = 1 секунда
 
-    // 3. Блокировка жестов на тачпадах/экранах (Pinch-to-zoom)
-    const handleTouchMove = (e) => {
-      if (e.touches.length > 1) {
-        e.preventDefault();
-      }
-    };
-
-    // Добавляем слушателей с параметром passive: false (важно для отмены событий)
-    document.addEventListener('wheel', handleWheel, { passive: false });
-    document.addEventListener('keydown', handleKeydown);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-
-    // Очистка при выходе (хороший тон в React)
-    return () => {
-      document.removeEventListener('wheel', handleWheel);
-      document.removeEventListener('keydown', handleKeydown);
-      document.removeEventListener('touchmove', handleTouchMove);
-    };
+    return () => clearInterval(interval); // Чистим таймер при выходе
   }, []);
 
+  // 4. Функция клика (Тап)
+  const handleTap = (e) => {
+    // Если энергии нет - выходим
+    if (energy <= 0) return;
+
+    // Анимация клика (маленький визуальный эффект координат)
+    // Тут можно добавить сложные анимации вылетающих цифр, пока просто логика
+
+    // Обновляем состояния
+    setPoints((prev) => prev + 1);
+    setEnergy((prev) => prev - 1);
+
+    // Вибрация телефона (работает на Android в Chrome/TG)
+    if (window.navigator.vibrate) {
+        window.navigator.vibrate(50);
+    }
+  };
+
   return (
-    <div className="soon-container">
-      <h1 className="title">
-        SOON<span className="dots">...</span>
-      </h1>
+    <div className="game-container">
+      
+      {/* Верхняя панель: Монеты */}
+      <div className="header">
+        <span className="coin-icon">💎</span>
+        <h1 className="score">{points.toLocaleString()}</h1>
+      </div>
+
+      {/* Центр: Кнопка тапа */}
+      <div className="tap-area">
+        <button 
+          className="tap-button" 
+          onClick={handleTap}
+          disabled={energy <= 0} // Блокируем, если нет энергии
+        >
+          TAP
+        </button>
+      </div>
+
+      {/* Низ: Энергия */}
+      <div className="footer">
+        <div className="energy-text">
+          <span>⚡ Energy</span>
+          <span>{energy} / {MAX_ENERGY}</span>
+        </div>
+        <div className="progress-bar">
+          <div 
+            className="progress-fill" 
+            style={{ width: `${(energy / MAX_ENERGY) * 100}%` }}
+          ></div>
+        </div>
+      </div>
+
     </div>
   );
 }
