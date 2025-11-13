@@ -135,7 +135,7 @@ function App() {
       }
     };
     
-    const timeoutId = setTimeout(saveToDatabase, 3000); 
+    const timeoutId = setTimeout(saveToDatabase, 800); 
 
     return () => clearTimeout(timeoutId);
 
