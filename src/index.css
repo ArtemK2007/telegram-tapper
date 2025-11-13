@@ -1,22 +1,16 @@
-/* --- 1. ПАЛИТРА И ШРИФТ --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap');
-
+/* === 1. ПАЛИТРА И ШРИФТ === */
 :root {
   --color-bg: #0d0d0d;
   --color-text: #ffffff;
-  --color-accent: #00bfa6; /* Яркий бирюзовый */
-  --color-accent-dark: #007d6a;
+  --color-accent: #00bfa6;
   --color-muted: #555;
-  --color-gold: #f5c400; /* Золото для очков */
+  --color-gold: #f5c400;
   --color-progress-bg: #1e1e1e;
-  --font-base: 'Inter', system-ui, sans-serif; /* Используем Inter */
-
-  /* Свечение */
-  --shadow-neon: 0 0 15px rgba(0, 191, 166, 0.6), 0 0 5px rgba(0, 191, 166, 0.4);
-  --shadow-gold: 0 0 8px rgba(245, 196, 0, 0.7);
+  --font-base: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Roboto", "Segoe UI", system-ui, sans-serif;
 }
 
 /* === 2. БАЗА === */
+/* Убираем импорт Inter, так как теперь используем системный шрифт */
 * {
   margin: 0;
   padding: 0;
@@ -29,8 +23,7 @@
 html, body, #root {
   width: 100%;
   height: 100%;
-  /* Красивый, глубокий фон */
-  background: radial-gradient(circle at center, #1a1a1a 0%, var(--color-bg) 100%);
+  background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-base);
   overflow: hidden;
@@ -44,6 +37,7 @@ html, body, #root {
   justify-content: space-between;
   height: 100dvh;
   width: 100vw;
+  background: var(--color-bg);
 }
 
 /* === 4. ВЕРХНЯЯ ПАНЕЛЬ === */
@@ -54,25 +48,22 @@ html, body, #root {
   justify-content: center;
   align-items: center;
   gap: 10px;
-  background: rgba(0, 0, 0, 0.5); /* Полупрозрачный для эффекта */
-  border-bottom: 2px solid var(--color-accent-dark);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 5;
 }
 
 .coin-icon {
   width: 36px;
   height: 36px;
-  filter: drop-shadow(var(--shadow-gold));
 }
 
 .view-title {
   font-size: 17px;
-  font-weight: 800; /* Жирнее */
+  font-weight: 700;
   color: var(--color-accent);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 0 0 5px var(--color-accent);
+  letter-spacing: 0.5px;
 }
 
 /* === 5. ИГРОВАЯ ОБЛАСТЬ === */
@@ -87,16 +78,15 @@ html, body, #root {
 }
 
 .header {
-  margin-top: 40px; /* Отступ больше */
+  margin-top: 24px;
   text-align: center;
 }
 
 .score {
-  font-size: clamp(48px, 10vw, 72px); /* Сделали еще крупнее */
-  font-weight: 900;
+  font-size: clamp(42px, 8vw, 64px);
+  font-weight: 800;
   color: var(--color-gold);
-  letter-spacing: -2px;
-  text-shadow: 0 0 10px rgba(255, 196, 0, 0.8), 0 0 20px rgba(255, 196, 0, 0.4);
+  letter-spacing: -1px;
 }
 
 /* === 6. TAP-КНОПКА === */
@@ -112,63 +102,47 @@ html, body, #root {
   height: min(260px, 70vw);
   border: none;
   border-radius: 50%;
-  /* Фон вокруг картинки */
-  background: radial-gradient(circle, #222 0%, #151515 100%); 
-  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.05), inset 0 0 10px #000;
-  
+  background: #1a1a1a;
   cursor: pointer;
-  /* Резкий эффект нажатия */
-  transition: transform 0.05s ease-out, box-shadow 0.15s ease; 
+  transition: transform 0.08s ease, background 0.15s ease;
   outline: none;
 }
 
 .tap-button img {
-  width: 100%; /* Картинка занимает весь размер кнопки */
-  height: 100%;
+  width: 70%;
+  height: 70%;
   object-fit: contain;
-  /* Неоновый свет: Cyan */
-  filter: drop-shadow(0 0 15px var(--color-accent)) drop-shadow(0 0 25px var(--color-accent-dark));
+  opacity: 0.9;
   pointer-events: none;
 }
 
 .tap-button:active {
-  transform: scale(0.90); /* Резкое сжатие */
-  box-shadow: 0 0 0 0px var(--color-accent), inset 0 0 20px var(--color-accent); /* Вспышка свечения */
-}
-
-.tap-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.tap-button:disabled img {
-  filter: grayscale(100%) brightness(0.5);
+  transform: scale(0.94);
+  background: #151515;
 }
 
 /* === 7. ЭНЕРГИЯ === */
 .footer {
   width: 100%;
   max-width: 400px;
-  padding: 0 20px;
-  margin-bottom: 30px; /* Больше отступ от низа */
+  margin-bottom: 18px;
 }
 
 .energy-text {
   display: flex;
   justify-content: space-between;
   color: var(--color-muted);
-  font-weight: 700;
-  font-size: 14px;
-  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 5px;
 }
 
 .progress-bar {
   width: 100%;
-  height: 16px; /* Выше полоска */
+  height: 12px;
   background-color: var(--color-progress-bg);
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.6); /* Эффект вдавливания */
 }
 
 .progress-fill {
@@ -176,28 +150,25 @@ html, body, #root {
   width: 0%;
   background: var(--color-accent);
   transition: width 0.25s ease;
-  box-shadow: 0 0 10px var(--color-accent); /* Неоновое свечение полоски */
 }
 
 /* === 8. ТАБ-БАР === */
 .tab-bar {
   width: 100%;
-  height: 68px;
-  background: rgba(0, 0, 0, 0.7);
-  border-top: 1px solid var(--color-accent);
-  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.8);
+  height: 64px;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  backdrop-filter: blur(5px); /* Легкое размытие */
 }
 
 .tab-button {
   border: none;
   background: none;
   color: var(--color-muted);
-  font-weight: 700;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 13px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -207,11 +178,17 @@ html, body, #root {
 
 .tab-button.active {
   color: var(--color-accent);
-  text-shadow: 0 0 5px var(--color-accent);
 }
 
 .tab-button span {
-  font-size: 24px; /* Крупнее иконки */
+  font-size: 20px;
+}
+
+.coin-icon-inline {
+  width: 28px;
+  height: 28px;
+  margin-right: 6px;
+  color: var(--color-gold);
 }
 
 /* --- СТИЛИ МОДАЛЬНОГО ОКНА --- */
@@ -222,33 +199,32 @@ html, body, #root {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.95); 
+    background-color: rgba(0, 0, 0, 0.9); /* Темный фон */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; 
+    z-index: 1000; /* Поверх всех элементов */
 }
 
 .name-modal {
-    background-color: #1a1a1a;
-    border: 2px solid var(--color-accent);
+    background-color: var(--color-dark-bg);
+    border: 2px solid var(--color-accent-cyan);
     border-radius: 12px;
     padding: 30px;
-    box-shadow: 0 0 20px var(--color-accent), 0 0 50px rgba(0, 191, 166, 0.2);
+    box-shadow: 0 0 40px var(--color-accent-cyan);
     max-width: 90%;
     text-align: center;
 }
 
 .modal-title {
-    color: var(--color-gold);
-    font-size: 26px;
-    font-weight: 900;
+    color: var(--color-primary-gold);
+    font-size: 24px;
     margin-bottom: 10px;
-    text-shadow: 0 0 5px var(--color-gold);
+    text-shadow: 0 0 5px var(--color-primary-gold);
 }
 
 .modal-text {
-    color: #aaa;
+    color: #ccc;
     margin-bottom: 20px;
 }
 
@@ -256,9 +232,9 @@ html, body, #root {
     width: 100%;
     padding: 12px;
     margin-bottom: 20px;
-    background-color: #0d0d0d;
-    border: 1px solid var(--color-accent-dark);
-    color: var(--color-text);
+    background-color: #1a1a1a;
+    border: 1px solid var(--color-accent-cyan);
+    color: white;
     font-size: 16px;
     border-radius: 6px;
     outline: none;
@@ -266,13 +242,12 @@ html, body, #root {
 }
 
 .name-input:focus {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 5px var(--color-accent);
+    border-color: var(--color-primary-gold);
 }
 
 .submit-button {
-    background-color: var(--color-accent);
-    color: var(--color-bg);
+    background-color: var(--color-accent-cyan);
+    color: var(--color-dark-bg);
     font-weight: 900;
     padding: 12px 30px;
     border: none;
@@ -282,7 +257,7 @@ html, body, #root {
 }
 
 .submit-button:hover:not(:disabled) {
-    background-color: var(--color-gold);
+    background-color: var(--color-primary-gold);
 }
 
 .submit-button:disabled {
