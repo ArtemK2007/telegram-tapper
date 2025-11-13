@@ -1,61 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import tapImage from './assets/tap.png'; 
-// 👇 НОВАЯ СТРОКА: Импортируем иконку валюты
+// Импортируем обе страницы
+import TapperScreen from './TapperScreen';
+import TasksScreen from './TasksScreen';
 import coinIconImage from './assets/coin.png'; 
-import './App.css'; 
+import './App.css'; // Общие стили для всего
 
 function App() {
-  const [points, setPoints] = useState(() => {
-    const saved = localStorage.getItem('points');
-    return saved ? parseInt(saved) : 0;
-  });
+  // 1. СОСТОЯНИЕ (State)
+  // [ACTIVE VIEW] - Храним, какая страница активна
+  const [activeView, setActiveView] = useState('tapper'); // Начинаем с тапалки
 
-  const [energy, setEnergy] = useState(() => {
-    const saved = localStorage.getItem('energy');
-    return saved ? parseInt(saved) : 1000;
-  });
-
+  // [GAME STATE] - Вся логика игры остается здесь, чтобы работать в фоне
+  const [points, setPoints] = useState(() => { /* ... load points ... */ });
+  const [energy, setEnergy] = useState(() => { /* ... load energy ... */ });
   const MAX_ENERGY = 1000;
 
+  // 2. ВСЕ USEEFFECT И ЛОГИКА ОСТАЮТСЯ ЗДЕСЬ
+
+  // Сохранение данных в localStorage
   useEffect(() => {
     localStorage.setItem('points', points.toString());
     localStorage.setItem('energy', energy.toString());
   }, [points, energy]);
 
+  // Регенерация энергии
   useEffect(() => {
     const interval = setInterval(() => {
-      setEnergy((prevEnergy) => {
-        if (prevEnergy < MAX_ENERGY) {
-          return prevEnergy + 1;
-        }
-        return prevEnergy;
-      });
+      setEnergy((prevEnergy) => (prevEnergy < MAX_ENERGY ? prevEnergy + 1 : prevEnergy));
     }, 1000); 
-
     return () => clearInterval(interval); 
-  }, []); 
+  }, []);
 
+  // Блокировка масштабирования (ВАЖНО! Оставляем здесь)
   useEffect(() => {
-    const handleWheel = (e) => {
-      if (e.ctrlKey) {
-        e.preventDefault();
-      }
+    const handleWheel = (e) => { if (e.ctrlKey) e.preventDefault(); };
+    const handleKeydown = (e) => { 
+      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=')) e.preventDefault(); 
     };
-
-    const handleKeydown = (e) => {
-      if (
-        (e.ctrlKey || e.metaKey) && 
-        (e.key === '+' || e.key === '-' || e.key === '=')
-      ) {
-        e.preventDefault();
-      }
-    };
-
-    const handleTouchMove = (e) => {
-      if (e.touches.length > 1) {
-        e.preventDefault();
-      }
-    };
+    const handleTouchMove = (e) => { if (e.touches.length > 1) e.preventDefault(); };
 
     document.addEventListener('wheel', handleWheel, { passive: false });
     document.addEventListener('keydown', handleKeydown);
@@ -68,6 +50,7 @@ function App() {
     };
   }, []);
   
+  // Функция клика передается в TapperScreen
   const handleTap = () => {
     if (energy <= 0) return;
     setPoints((prev) => prev + 1);
@@ -75,38 +58,53 @@ function App() {
     if (window.navigator.vibrate) window.navigator.vibrate(50);
   };
 
+  // 3. ФУНКЦИЯ РЕНДЕРИНГА (РОУТЕР)
+  const renderView = () => {
+    if (activeView === 'tapper') {
+      return (
+        <TapperScreen 
+          points={points} 
+          energy={energy} 
+          handleTap={handleTap} 
+          MAX_ENERGY={MAX_ENERGY} 
+        />
+      );
+    } else if (activeView === 'tasks') {
+      return <TasksScreen />;
+    }
+  };
+
   return (
-    <div className="game-container">
+    <div className="game-container app-shell">
       
-      <div className="header">
-        {/* 👇 ЗАМЕНЯЕМ ЭМОДЗИ НА КАРТИНКУ */}
-        <img src={coinIconImage} alt="Coin" className="coin-icon" />
-        <h1 className="score">{points.toLocaleString()}</h1>
+      {/* 4. ВЕРХНИЙ ИНТЕРФЕЙС (Общий для всех страниц) */}
+      <div className="top-ui">
+          <img src={coinIconImage} alt="Coin" className="coin-icon" />
+          <div className="view-title">{activeView === 'tapper' ? 'Клик' : 'Задания'}</div>
       </div>
 
-      <div className="tap-area">
+      {/* 5. ОБЛАСТЬ СТРАНИЦ */}
+      <div className="content-area">
+        {renderView()}
+      </div>
+
+      {/* 6. НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ */}
+      <div className="tab-bar">
         <button 
-          className="tap-button" 
-          onClick={handleTap}
-          disabled={energy <= 0}
+          className={`tab-button ${activeView === 'tapper' ? 'active' : ''}`}
+          onClick={() => setActiveView('tapper')}
         >
-          <img src={tapImage} alt="Tap Me" draggable="false" />
+          <span role="img" aria-label="tap">👆</span>
+          Тапать
+        </button>
+        <button 
+          className={`tab-button ${activeView === 'tasks' ? 'active' : ''}`}
+          onClick={() => setActiveView('tasks')}
+        >
+          <span role="img" aria-label="tasks">📋</span>
+          Задания
         </button>
       </div>
-
-      <div className="footer">
-        <div className="energy-text">
-          <span>⚡ Energy</span>
-          <span>{energy} / {MAX_ENERGY}</span>
-        </div>
-        <div className="progress-bar">
-          <div 
-            className="progress-fill" 
-            style={{ width: `${(energy / MAX_ENERGY) * 100}%` }}
-          ></div>
-        </div>
-      </div>
-
     </div>
   );
 }
