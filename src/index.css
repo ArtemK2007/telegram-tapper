@@ -1,37 +1,65 @@
-/* 1. Подключаем шрифты Montserrat */
+/* --- CSS Переменные для легкой смены темы --- */
+:root {
+  --color-dark-bg: #0a0a0a;         /* Очень темный фон */
+  --color-primary-gold: #ffc400;    /* Основной цвет: Золото/желтый */
+  --color-secondary-cyan: #3390ec;  /* Акцентный цвет: Неоновый синий */
+  --color-energy-fill: #00ff88;     /* Цвет энергии: Яркий зеленый */
+  --font-family-base: 'Montserrat', sans-serif;
+}
+
+/* --- Keyframes (Анимации) --- */
+
+/* Легкое свечение счета */
+@keyframes pulse-glow {
+  0%, 100% { text-shadow: 0 0 10px var(--color-primary-gold); }
+  50% { text-shadow: 0 0 20px var(--color-primary-gold), 0 0 30px rgba(255, 196, 0, 0.5); }
+}
+
+/* Легкое движение фона */
+@keyframes background-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
+/* --- ГЛОБАЛЬНЫЙ СБРОС И ФОН --- */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
 
-/* 2. Глобальный сброс браузерных стилей (ОЧЕНЬ ВАЖНО!) */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  user-select: none; /* Запрет выделения текста */
-  -webkit-user-select: none; /* Для iOS */
-  touch-action: manipulation; /* Предотвращает зум по двойному тапу */
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
-/* 3. Базовые стили для body и html */
 html, body, #root {
   width: 100%;
   height: 100%;
-  overflow: hidden; /* Запрещает прокрутку */
-  background-color: #000000; /* Глубокий черный фон для всего приложения */
-  color: white; /* Цвет текста по умолчанию */
-  font-family: 'Montserrat', sans-serif; /* Основной шрифт */
+  overflow: hidden;
+  color: white; 
+  font-family: var(--font-family-base);
+
+  /* Красивый анимированный фон */
+  background: radial-gradient(circle at center, #111 0%, #000 70%);
+  background-size: 400% 400%;
+  animation: background-shift 60s ease infinite; /* Медленная пульсация фона */
 }
 
-/* 4. Главный контейнер игры */
+/* --- КОНТЕЙНЕР ИГРЫ --- */
 .game-container {
   width: 100vw;
-  height: 100dvh; /* Dynamic viewport height для корректной работы на мобильных */
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Распределяет элементы по вертикали */
-  align-items: center; /* Центрирует по горизонтали */
+  justify-content: space-between;
+  align-items: center;
   padding: 20px;
-  padding-top: 40px; /* Немного отступа сверху, чтобы не прилипало к заголовку ТГ */
+  padding-top: 40px; 
   padding-bottom: 40px;
+  background: rgba(0, 0, 0, 0.4); /* Полупрозрачный слой для контраста */
 }
 
 /* --- ВЕРХНЯЯ ПАНЕЛЬ: ОЧКИ --- */
@@ -39,93 +67,99 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px; /* Отступ между иконкой и счетом */
+  gap: 10px;
 }
 
-
-/* Стили для КАРТИНКИ иконки валюты */
 .coin-icon {
-  width: 130px; /* Задаем желаемую ширину */
-  height: 130px; /* Задаем желаемую высоту */
-  object-fit: contain; /* Чтобы картинка не искажалась */
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)); /* Легкое свечение */
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  /* Свечение иконки */
+  filter: drop-shadow(0 0 10px var(--color-primary-gold)) drop-shadow(0 0 2px var(--color-dark-bg));
 }
-
 
 .score {
-  font-size: 48px; /* Размер шрифта для очков */
-  font-weight: 900; /* Жирный шрифт */
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3); /* Легкое свечение для очков */
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--color-primary-gold);
+  /* Анимация свечения счета */
+  animation: pulse-glow 5s infinite alternate; 
 }
 
 /* --- ЦЕНТР: КНОПКА-КАРТИНКА --- */
 .tap-area {
-  flex-grow: 1; /* Занимает все доступное вертикальное пространство */
+  flex-grow: 1;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .tap-button {
-  background: none; /* Убираем фоновый цвет кнопки */
-  border: none;      /* Убираем рамку */
-  outline: none;     /* Убираем обводку при фокусе */
+  background: none;
+  border: none;
+  outline: none;
   cursor: pointer;
-  width: 280px;      /* Фиксированный размер кнопки */
+  width: 280px;
   height: 280px;
   
-  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Пружинящая анимация */
-  -webkit-tap-highlight-color: transparent; /* Убираем синее выделение при тапе на Android */
+  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .tap-button img {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* Картинка масштабируется внутри кнопки */
-  pointer-events: none; /* Клик проходит сквозь картинку на кнопку */
-  filter: drop-shadow(0 0 15px rgba(51, 144, 236, 0.4)); /* Неоновая тень вокруг картинки */
+  object-fit: contain;
+  pointer-events: none;
+  /* Двойная неоновая тень */
+  filter: drop-shadow(0 0 10px var(--color-secondary-cyan)) 
+          drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
 }
 
 .tap-button:active {
-  transform: scale(0.90); /* Эффект уменьшения при нажатии */
+  transform: scale(0.90);
 }
 
 .tap-button:disabled {
   cursor: not-allowed;
-  transform: none; /* Отключаем анимацию при блокировке */
+  transform: none;
 }
 
 .tap-button:disabled img {
-  filter: grayscale(100%) opacity(0.5); /* Картинка серая и полупрозрачная при блокировке */
+  /* Если нет энергии, то черно-белая и без свечения */
+  filter: grayscale(100%) opacity(0.3) drop-shadow(0 0 0 transparent);
 }
+
 
 /* --- НИЖНЯЯ ПАНЕЛЬ: ЭНЕРГИЯ --- */
 .footer {
   width: 100%;
-  max-width: 400px; /* Ограничиваем ширину полоски энергии */
-  align-self: center; /* Центрируем футер по горизонтали */
+  max-width: 400px; 
+  align-self: center;
 }
 
 .energy-text {
   display: flex;
-  justify-content: space-between; /* Разносим текст "Energy" и цифры по краям */
+  justify-content: space-between;
   font-size: 14px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: #aaa; /* Светло-серый цвет для текста энергии */
+  color: var(--color-accent); /* Синий цвет для текста */
 }
 
 .progress-bar {
   width: 100%;
-  height: 12px;
-  background-color: #222; /* Темно-серый фон полоски */
-  border-radius: 6px;
-  overflow: hidden; /* Обрезает содержимое, чтобы fill не вылез за края */
-  border: 1px solid #333; /* Тонкая рамка */
+  height: 14px; /* Чуть выше */
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5); /* Эффект вдавливания */
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #f1c40f, #f39c12); /* Градиент "золотого" цвета */
-  transition: width 0.2s linear; /* Плавное изменение ширины полоски */
+  /* Неоновый зеленый градиент */
+  background: linear-gradient(90deg, #109e53, var(--color-energy-fill)); 
+  transition: width 0.2s linear; 
+  box-shadow: 0 0 8px var(--color-energy-fill); /* Неоновое свечение полоски */
 }
