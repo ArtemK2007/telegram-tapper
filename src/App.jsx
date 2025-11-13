@@ -26,6 +26,8 @@ function App() {
   });
   const MAX_ENERGY = 1000;
 
+  const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0);
+
   // 2. ВСЕ USEEFFECT И ЛОГИКА ОСТАЮТСЯ ЗДЕСЬ
 
   // Сохранение данных в localStorage
@@ -46,29 +48,58 @@ function App() {
   }, []);
 
   // Блокировка масштабирования (ВАЖНО! Оставляем здесь)
+// 3. Сохранение данных в базу данных с Debounce
   useEffect(() => {
-    const handleWheel = (e) => { if (e.ctrlKey) e.preventDefault(); };
-    const handleKeydown = (e) => { 
-      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=')) e.preventDefault(); 
-    };
-    const handleTouchMove = (e) => { if (e.touches.length > 1) e.preventDefault(); };
+    // Если буфер пуст или пользователь еще не загружен, выходим
+    if (tapsSinceLastSave === 0 || !user) return;
 
-    document.addEventListener('wheel', handleWheel, { passive: false });
-    document.addEventListener('keydown', handleKeydown);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    // Функция, которая делает POST-запрос в Supabase
+    const saveToDatabase = async () => {
+      // Суммируем текущие очки и сбрасываем счетчик буфера
+      const finalPoints = points; 
+      const finalEnergy = energy;
 
-    return () => {
-      document.removeEventListener('wheel', handleWheel);
-      document.removeEventListener('keydown', handleKeydown);
-      document.removeEventListener('touchmove', handleTouchMove);
+      // Сбрасываем счетчик буфера *перед* отправкой, чтобы не было дублей
+      setTapsSinceLastSave(0); 
+
+      console.log(`Отправка в БД: ${finalPoints} pts, ${finalEnergy} energy`);
+
+      // 🛑 Отправляем данные на сервер
+      const { error } = await supabase
+        .from('players')
+        .update({ 
+          points: finalPoints,
+          energy_current: finalEnergy 
+        })
+        .eq('id', user.id); 
+
+      if (error) {
+        // Если ошибка, возвращаем очки обратно в буфер (упрощенная логика)
+        console.error('Ошибка сохранения:', error);
+        // setTapsSinceLastSave(prev => prev + (finalPoints - points)); 
+      }
     };
-  }, []);
+    
+    // 🛑 DEBOUNCE LOGIC: Таймер для отложенной отправки
+    const timeoutId = setTimeout(saveToDatabase, 3000); // Отправляем через 3 секунды бездействия
+
+    // Очистка таймера: если клик произошел снова, мы отменяем предыдущую отправку
+    return () => clearTimeout(timeoutId);
+
+  // Этот useEffect сработает, когда изменится tapsSinceLastSave, points или energy
+  }, [tapsSinceLastSave, points, energy, user]);
   
   // Функция клика передается в TapperScreen
   const handleTap = () => {
     if (energy <= 0) return;
+    
+    // Увеличиваем монеты и тратим энергию (Локально)
     setPoints((prev) => prev + 1);
     setEnergy((prev) => prev - 1);
+    
+    // 👇 Увеличиваем счетчик кликов в буфере
+    setTapsSinceLastSave((prev) => prev + 1); 
+
     if (window.navigator.vibrate) window.navigator.vibrate(50);
   };
 
