@@ -1,29 +1,30 @@
-/* --- CSS Переменные для легкой смены темы --- */
+/* --- 1. CSS Variables (Цветовая палитра) --- */
 :root {
-  --color-dark-bg: #0a0a0a;         /* Очень темный фон */
-  --color-primary-gold: #ffc400;    /* Основной цвет: Золото/желтый */
-  --color-secondary-cyan: #3390ec;  /* Акцентный цвет: Неоновый синий */
-  --color-energy-fill: #00ff88;     /* Цвет энергии: Яркий зеленый */
+  --color-dark-bg: #030305;         /* Глубокий черный (почти космос) */
+  --color-primary-gold: #ffc400;    /* Золото для очков */
+  --color-accent-cyan: #00ffff;     /* Неоновый акцентный цвет */
+  --color-energy-fill: #39ff14;     /* Неоново-зеленый для энергии */
+  --color-inactive: #333333;        /* Серый неактивный */
   --font-family-base: 'Montserrat', sans-serif;
 }
 
-/* --- Keyframes (Анимации) --- */
+/* --- 2. Keyframes (Анимации) --- */
 
-/* Легкое свечение счета */
-@keyframes pulse-glow {
-  0%, 100% { text-shadow: 0 0 10px var(--color-primary-gold); }
-  50% { text-shadow: 0 0 20px var(--color-primary-gold), 0 0 30px rgba(255, 196, 0, 0.5); }
+/* Пульсация свечения для счета */
+@keyframes neon-pulse {
+  0%, 100% { text-shadow: 0 0 5px var(--color-primary-gold), 0 0 10px rgba(255, 196, 0, 0.4); }
+  50% { text-shadow: 0 0 15px var(--color-primary-gold), 0 0 30px rgba(255, 196, 0, 0.8); }
 }
 
-/* Легкое движение фона */
-@keyframes background-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* Анимация фона для глубины */
+@keyframes background-depth {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 
-/* --- ГЛОБАЛЬНЫЙ СБРОС И ФОН --- */
+/* --- 3. ГЛОБАЛЬНЫЙ СБРОС И ФОН (Основа) --- */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
 
 * {
@@ -39,30 +40,75 @@ html, body, #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: var(--color-dark-bg);
   color: white; 
   font-family: var(--font-family-base);
-
-  /* Красивый анимированный фон */
-  background: radial-gradient(circle at center, #111 0%, #000 70%);
-  background-size: 400% 400%;
-  animation: background-shift 60s ease infinite; /* Медленная пульсация фона */
 }
 
-/* --- КОНТЕЙНЕР ИГРЫ --- */
+/* ФОН: Главный контейнер игры с эффектом глубины */
 .game-container {
   width: 100vw;
-  height: 100dvh;
+  height: 100dvh; 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  padding-top: 40px; 
-  padding-bottom: 40px;
-  background: rgba(0, 0, 0, 0.4); /* Полупрозрачный слой для контраста */
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 0;
+  
+  /* Эффект глубины и легкого движения */
+  background: radial-gradient(circle at center, #1a1a1a 0%, var(--color-dark-bg) 100%);
+  animation: background-depth 120s infinite alternate; /* Очень медленное движение */
 }
 
-/* --- ВЕРХНЯЯ ПАНЕЛЬ: ОЧКИ --- */
+
+/* --- 4. ТОП-ПАНЕЛЬ (Общий Shell) --- */
+.top-ui {
+    padding: 15px 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background-color: rgba(0, 0, 0, 0.6); /* Полупрозрачная подложка */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+    border-bottom: 2px solid var(--color-accent-cyan);
+    z-index: 10;
+}
+
+.coin-icon {
+  width: 45px; /* Чуть меньше */
+  height: 45px;
+  filter: drop-shadow(0 0 8px var(--color-primary-gold));
+}
+
+.view-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--color-accent-cyan);
+    text-transform: uppercase;
+}
+
+/* --- 5. ОБЛАСТЬ КОНТЕНТА --- */
+.content-area {
+  flex-grow: 1;
+  width: 100%;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* --- Tapper Screen Styles --- */
+.game-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+}
+
 .header {
   display: flex;
   flex-direction: column;
@@ -70,25 +116,18 @@ html, body, #root {
   gap: 10px;
 }
 
-.coin-icon {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-  /* Свечение иконки */
-  filter: drop-shadow(0 0 10px var(--color-primary-gold)) drop-shadow(0 0 2px var(--color-dark-bg));
-}
-
 .score {
-  font-size: 48px;
+  font-size: 60px; /* КРУПНЕЕ */
   font-weight: 900;
   color: var(--color-primary-gold);
-  /* Анимация свечения счета */
-  animation: pulse-glow 5s infinite alternate; 
+  animation: neon-pulse 3s infinite alternate; /* Применяем анимацию свечения */
+  margin-top: 15px; /* Отступ от иконки */
 }
 
-/* --- ЦЕНТР: КНОПКА-КАРТИНКА --- */
+/* --- TAP BUTTON --- */
 .tap-area {
-  flex-grow: 1;
+  /* Без изменений: занимает центр */
+  flex-grow: 1; 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -101,7 +140,6 @@ html, body, #root {
   cursor: pointer;
   width: 280px;
   height: 280px;
-  
   transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   -webkit-tap-highlight-color: transparent;
 }
@@ -111,49 +149,45 @@ html, body, #root {
   height: 100%;
   object-fit: contain;
   pointer-events: none;
-  /* Двойная неоновая тень */
-  filter: drop-shadow(0 0 10px var(--color-secondary-cyan)) 
-          drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
+  /* Неоновый свет: Cyan + Yellow/Gold */
+  filter: drop-shadow(0 0 15px var(--color-accent-cyan)) 
+          drop-shadow(0 0 25px rgba(255, 196, 0, 0.6));
 }
 
 .tap-button:active {
-  transform: scale(0.90);
-}
-
-.tap-button:disabled {
-  cursor: not-allowed;
-  transform: none;
+  transform: scale(0.92); /* Чуть более заметное нажатие */
 }
 
 .tap-button:disabled img {
-  /* Если нет энергии, то черно-белая и без свечения */
-  filter: grayscale(100%) opacity(0.3) drop-shadow(0 0 0 transparent);
+  filter: grayscale(100%) opacity(0.2) drop-shadow(0 0 0 transparent);
 }
 
-
-/* --- НИЖНЯЯ ПАНЕЛЬ: ЭНЕРГИЯ --- */
+/* --- 6. ЭНЕРГИЯ --- */
 .footer {
   width: 100%;
   max-width: 400px; 
-  align-self: center;
+  margin-top: auto; /* Прижимаем к низу */
+  margin-bottom: 20px;
 }
 
 .energy-text {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 16px; /* Чуть крупнее */
   font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--color-accent); /* Синий цвет для текста */
+  margin-bottom: 6px;
+  color: var(--color-energy-fill); /* Цвет текста как у полоски */
+  text-shadow: 0 0 4px rgba(57, 255, 20, 0.5); /* Неоновое свечение */
 }
 
 .progress-bar {
   width: 100%;
-  height: 14px; /* Чуть выше */
-  background-color: #1a1a1a;
+  height: 16px; /* Высокая полоска */
+  background-color: #111;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5); /* Эффект вдавливания */
+  border: 1px solid #333;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8); /* Эффект вдавливания */
 }
 
 .progress-fill {
@@ -161,86 +195,41 @@ html, body, #root {
   /* Неоновый зеленый градиент */
   background: linear-gradient(90deg, #109e53, var(--color-energy-fill)); 
   transition: width 0.2s linear; 
-  box-shadow: 0 0 8px var(--color-energy-fill); /* Неоновое свечение полоски */
+  box-shadow: 0 0 10px var(--color-energy-fill); /* Сильное свечение полоски */
 }
 
-/* --- СТИЛИ SHELL И КОНТЕНТА --- */
-
-/* Главный контейнер (App-Shell) теперь использует Grid/Flex для разделения */
-.app-shell {
-  padding: 0; /* Убираем главный padding, чтобы панель прилипла к низу */
-  justify-content: flex-start; /* Начинаем элементы сверху */
-}
-
-/* Область, где рендерятся страницы */
-.content-area {
-  flex-grow: 1; /* Занимает все вертикальное пространство */
-  width: 100%;
-  padding: 20px;
-  overflow-y: auto; /* Если страница будет длинной, тут будет скролл */
-  display: flex; /* Чтобы центрировать контент на TasksScreen */
-  justify-content: center;
-}
-
-/* Стиль для TOP UI (Новый заголовок) */
-.top-ui {
-    padding: 15px 20px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    background-color: var(--color-dark-bg);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.view-title {
-    font-size: 20px;
-    font-weight: 900;
-    color: var(--color-secondary-cyan);
-    text-transform: uppercase;
-}
-
-
-/* --- СТИЛИ ПАНЕЛИ НАВИГАЦИИ (ТАБ-БАР) --- */
-
+/* --- 7. ТАБ-БАР --- */
 .tab-bar {
   width: 100%;
-  height: 70px; /* Фиксированная высота */
-  background-color: #1a1a1a;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  height: 80px; /* Чуть выше */
+  background-color: rgba(0, 0, 0, 0.9);
+  border-top: 2px solid var(--color-accent-cyan);
   display: flex;
-  justify-content: space-around; /* Равномерно распределяем кнопки */
+  justify-content: space-around;
   align-items: center;
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.9);
 }
 
 .tab-button {
   background: none;
   border: none;
-  color: #777; /* Неактивный цвет */
+  color: var(--color-inactive); 
   font-family: var(--font-family-base);
   font-size: 14px;
   font-weight: 700;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 3px;
   transition: color 0.2s;
-  padding: 5px 10px;
-}
-
-.tab-button:hover:not(.active) {
-    color: #aaa;
+  padding: 10px 15px;
 }
 
 .tab-button.active {
-  color: var(--color-secondary-cyan); /* Активный цвет */
-  text-shadow: 0 0 5px rgba(51, 144, 236, 0.5);
+  color: var(--color-accent-cyan);
+  text-shadow: 0 0 5px var(--color-accent-cyan);
 }
 
 .tab-button span {
-    font-size: 20px;
+    font-size: 24px; /* Крупнее иконки */
 }
