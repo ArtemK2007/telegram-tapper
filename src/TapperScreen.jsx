@@ -1,6 +1,8 @@
 import React from 'react';
 import tapImage from './assets/tap.png'; 
 import './App.css'; // Оставляем стили для UI
+import { Coins } from "lucide-react";
+
 
 // TapperScreen получает все нужные данные и функции через props
 export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) {
@@ -12,7 +14,10 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
       
       {/* Верхняя панель: Монеты (БЕЗ ИКОНКИ, так как иконка будет в App.jsx) */}
       <div className="header">
-        <h1 className="score">{(points ?? 0).toLocaleString()}</h1>
+      <h1 className="score">
+        <Coins className="coin-icon-inline" />
+        {(points ?? 0).toLocaleString()}
+      </h1>
       </div>
 
       {/* Центр: Кнопка тапа */}

@@ -183,3 +183,10 @@ html, body, #root {
 .tab-button span {
   font-size: 20px;
 }
+
+.coin-icon-inline {
+  width: 28px;
+  height: 28px;
+  margin-right: 6px;
+  color: var(--color-gold);
+}
