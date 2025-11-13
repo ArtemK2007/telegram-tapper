@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// 1. ИМПОРТ SUPABASE КЛИЕНТА
+// 1. ИМПОРТЫ
 import { supabase } from './supabaseClient'; 
 import TapperScreen from './TapperScreen';
 import TasksScreen from './TasksScreen';
@@ -8,46 +8,42 @@ import './App.css';
 
 function App() {
   // 1. СОСТОЯНИЕ (State)
-  // 👇 НОВОЕ: User и Loading состояния для Supabase
   const [user, setUser] = useState(null); 
   const [loading, setLoading] = useState(true); 
-  
   const [activeView, setActiveView] = useState('tapper'); 
 
-  // [GAME STATE]
-  const [points, setPoints] = useState(() => {
-    const saved = localStorage.getItem('points');
-    const parsedValue = parseInt(saved);
-    return (saved && !isNaN(parsedValue)) ? parsedValue : 0; 
-  });
-
-  const [energy, setEnergy] = useState(() => {
-    const saved = localStorage.getItem('energy');
-    const parsedValue = parseInt(saved);
-    return (saved && !isNaN(parsedValue)) ? parsedValue : 1000;
-  });
+  // [GAME STATE] - Всегда начинаем с 0/1000 до загрузки с сервера
+  const [points, setPoints] = useState(0); 
+  const [energy, setEnergy] = useState(1000);
   const MAX_ENERGY = 1000;
-
   const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0); 
+  const [isNewUser, setIsNewUser] = useState(false); // Флаг для первого входа
 
   // 2. БЛОКИ USEEFFECT и ЛОГИКА
 
   // 2.1. АВТОРИЗАЦИЯ И ЗАГРУЗКА ДАННЫХ (Главный useEffect)
   useEffect(() => {
     async function getAuth() {
-      // 1. Авторизация (signInAnonymously - временно, для TWA)
-      const { data: { user } } = await supabase.auth.signInAnonymously();
+      // 1. Проверка существующей сессии
+      const { data: { user: existingUser } } = await supabase.auth.getUser();
 
-      if (user) {
-        setUser(user);
-        await loadPlayerData(user.id);
+      if (existingUser) {
+        setUser(existingUser);
+        await loadPlayerData(existingUser.id);
       } else {
-        setLoading(false); 
+        // 2. Если сессии нет, создаем анонимного пользователя
+        const { data: { user: newUser } } = await supabase.auth.signInAnonymously();
+        if (newUser) {
+          setUser(newUser);
+          setIsNewUser(true); // Отмечаем, что это новый пользователь
+          await initializeNewPlayer(newUser.id);
+        } else {
+          setLoading(false); 
+        }
       }
     }
 
     async function loadPlayerData(userId) {
-      // 2. Загрузка данных игрока
       const { data, error } = await supabase
         .from('players')
         .select(`points, energy_current`)
@@ -57,18 +53,20 @@ function App() {
       if (data) {
         setPoints(data.points);
         setEnergy(data.energy_current);
-      } else if (error && error.code === 'PGRST116') { // Игрок не найден
+      } else if (error && error.code === 'PGRST116') { // Игрок не найден в таблице
         await initializeNewPlayer(userId);
       }
       setLoading(false);
     }
     
     async function initializeNewPlayer(userId) {
+      const tgUsername = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'Anonymous'; 
+      
       const { error } = await supabase
         .from('players')
         .insert({ 
           id: userId, 
-          username: 'Anonymous', 
+          username: tgUsername, // Используем реальный логин
           points: 0, 
           energy_current: 1000
         });
@@ -77,9 +75,10 @@ function App() {
         setPoints(0);
         setEnergy(1000);
       }
+      setLoading(false);
     }
 
-    getAuth(); // Запускаем процесс авторизации при старте
+    getAuth(); 
   }, []); 
 
   // 2.2. Регенерация энергии
@@ -90,7 +89,7 @@ function App() {
     return () => clearInterval(interval); 
   }, []);
 
-  // 2.3. Блокировка масштабирования (ВОССТАНОВЛЕНО!)
+  // 2.3. Блокировка масштабирования 
   useEffect(() => {
     const handleWheel = (e) => { if (e.ctrlKey) e.preventDefault(); };
     const handleKeydown = (e) => { 
@@ -129,18 +128,17 @@ function App() {
           points: finalPoints,
           energy_current: finalEnergy 
         })
-        .eq('id', user.id); // 👈 ИСПОЛЬЗУЕМ user.id!
+        .eq('id', user.id); 
 
       if (error) {
         console.error('Ошибка сохранения:', error);
       }
     };
     
-    const timeoutId = setTimeout(saveToDatabase, 3000); // Отправляем через 3 секунды
+    const timeoutId = setTimeout(saveToDatabase, 3000); 
 
     return () => clearTimeout(timeoutId);
 
-  // Следим за user, tapsSinceLastSave, points, energy
   }, [tapsSinceLastSave, points, energy, user]); 
 
   // 3. Функция клика (handleTap)
@@ -163,7 +161,7 @@ function App() {
     );
   }
 
-  // 5. ФУНКЦИЯ РЕНДЕРИНГА (РОУТЕР)
+  // 5. РЕНДЕРИНГ
   const renderView = () => {
     if (activeView === 'tapper') {
       return (
@@ -182,7 +180,6 @@ function App() {
   return (
     <div className="game-container app-shell">
       
-      {/* 6. РЕНДЕРИНГ ОСНОВНОГО UI (УДАЛЕНО СОХРАНЕНИЕ В localStorage) */}
       <div className="top-ui">
           <img src={coinIconImage} alt="Coin" className="coin-icon" />
           <div className="view-title">{activeView === 'tapper' ? 'Клик' : 'Задания'}</div>
