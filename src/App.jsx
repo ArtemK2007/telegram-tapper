@@ -218,7 +218,6 @@ function App() {
     <div className="game-container app-shell">
       
       <div className="top-ui">
-          <img src={coinIconImage} alt="Coin" className="coin-icon" />
           <div className="view-title">{activeView === 'tapper' ? 'Клик' : 'Задания'}</div>
       </div>
 

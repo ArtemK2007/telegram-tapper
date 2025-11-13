@@ -138,7 +138,7 @@ html, body, #root {
 
 /* === 8. ТАБ-БАР === */
 .tab-bar {
-  width: 100%;
+  width: 80%;
   height: 56px;
   background: rgba(255, 255, 255, 0.02);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
