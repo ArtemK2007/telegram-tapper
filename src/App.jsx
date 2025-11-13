@@ -19,8 +19,11 @@ function App() {
 
   // Сохранение данных в localStorage
   useEffect(() => {
-    localStorage.setItem('points', points.toString());
-    localStorage.setItem('energy', energy.toString());
+    // 🛑 ИСПРАВЛЕНИЕ: Проверяем, что переменные не undefined перед вызовом .toString()
+    if (points !== undefined && energy !== undefined) {
+      localStorage.setItem('points', points.toString());
+      localStorage.setItem('energy', energy.toString());
+    }
   }, [points, energy]);
 
   // Регенерация энергии
