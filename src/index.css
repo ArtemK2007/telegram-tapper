@@ -1,30 +1,14 @@
-/* --- 1. CSS Variables (Цветовая палитра) --- */
+/* === 1. ROOT (ПАЛИТРА и ШРИФТЫ) === */
 :root {
-  --color-dark-bg: #030305;         /* Глубокий черный (почти космос) */
-  --color-primary-gold: #ffc400;    /* Золото для очков */
-  --color-accent-cyan: #00ffff;     /* Неоновый акцентный цвет */
-  --color-energy-fill: #39ff14;     /* Неоново-зеленый для энергии */
-  --color-inactive: #333333;        /* Серый неактивный */
-  --font-family-base: 'Montserrat', sans-serif;
+  --color-bg-dark: #020203;
+  --color-gold: #ffc400;
+  --color-cyan: #00ffff;
+  --color-green: #39ff14;
+  --color-gray: #3a3a3a;
+  --font-base: 'Montserrat', sans-serif;
 }
 
-/* --- 2. Keyframes (Анимации) --- */
-
-/* Пульсация свечения для счета */
-@keyframes neon-pulse {
-  0%, 100% { text-shadow: 0 0 5px var(--color-primary-gold), 0 0 10px rgba(255, 196, 0, 0.4); }
-  50% { text-shadow: 0 0 15px var(--color-primary-gold), 0 0 30px rgba(255, 196, 0, 0.8); }
-}
-
-/* Анимация фона для глубины */
-@keyframes background-depth {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-
-/* --- 3. ГЛОБАЛЬНЫЙ СБРОС И ФОН (Основа) --- */
+/* === 2. БАЗА === */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
 
 * {
@@ -39,108 +23,102 @@
 html, body, #root {
   width: 100%;
   height: 100%;
+  background-color: var(--color-bg-dark);
+  font-family: var(--font-base);
+  color: white;
   overflow: hidden;
-  background-color: var(--color-dark-bg);
-  color: white; 
-  font-family: var(--font-family-base);
 }
 
-/* ФОН: Главный контейнер игры с эффектом глубины */
+/* === 3. АНИМАЦИИ === */
+@keyframes glow-pulse {
+  0%, 100% { text-shadow: 0 0 6px var(--color-gold), 0 0 10px rgba(255, 196, 0, 0.4); }
+  50% { text-shadow: 0 0 15px var(--color-gold), 0 0 35px rgba(255, 196, 0, 0.8); }
+}
+
+@keyframes slow-depth {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+/* === 4. GAME CONTAINER === */
 .game-container {
-  width: 100vw;
-  height: 100dvh; 
   display: flex;
   flex-direction: column;
-  justify-content: space-between; 
-  align-items: center; 
-  padding: 0;
-  
-  /* Эффект глубины и легкого движения */
-  background: radial-gradient(circle at center, #1a1a1a 0%, var(--color-dark-bg) 100%);
-  animation: background-depth 120s infinite alternate; /* Очень медленное движение */
+  align-items: center;
+  justify-content: space-between;
+  height: 100dvh;
+  width: 100vw;
+  background: radial-gradient(circle at center, #1a1a1a 0%, var(--color-bg-dark) 100%);
+  animation: slow-depth 120s infinite alternate;
 }
 
-
-/* --- 4. ТОП-ПАНЕЛЬ (Общий Shell) --- */
+/* === 5. TOP BAR === */
 .top-ui {
-    padding: 15px 20px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    background-color: rgba(0, 0, 0, 0.6); /* Полупрозрачная подложка */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
-    border-bottom: 2px solid var(--color-accent-cyan);
-    z-index: 10;
+  width: 100%;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border-bottom: 1.5px solid var(--color-cyan);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  z-index: 5;
 }
 
 .coin-icon {
-  width: 45px; /* Чуть меньше */
-  height: 45px;
-  filter: drop-shadow(0 0 8px var(--color-primary-gold));
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 0 6px var(--color-gold));
 }
 
 .view-title {
-    font-size: 20px;
-    font-weight: 900;
-    color: var(--color-accent-cyan);
-    text-transform: uppercase;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--color-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-/* --- 5. ОБЛАСТЬ КОНТЕНТА --- */
-.content-area {
-  flex-grow: 1;
-  width: 100%;
-  padding: 20px;
-  overflow-y: auto;
-  display: flex;
-  justify-content: center;
-}
-
-/* --- Tapper Screen Styles --- */
+/* === 6. GAME SCREEN === */
 .game-screen {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
 }
 
 .header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  margin-top: 20px;
+  text-align: center;
 }
 
 .score {
-  font-size: 60px; /* КРУПНЕЕ */
+  font-size: clamp(48px, 8vw, 72px);
   font-weight: 900;
-  color: var(--color-primary-gold);
-  animation: neon-pulse 3s infinite alternate; /* Применяем анимацию свечения */
-  margin-top: 15px; /* Отступ от иконки */
+  color: var(--color-gold);
+  animation: glow-pulse 3s infinite alternate;
 }
 
-/* --- TAP BUTTON --- */
+/* === TAP BUTTON === */
 .tap-area {
-  /* Без изменений: занимает центр */
-  flex-grow: 1; 
+  flex-grow: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
 .tap-button {
-  background: none;
+  width: min(280px, 70vw);
+  height: min(280px, 70vw);
   border: none;
-  outline: none;
+  background: none;
   cursor: pointer;
-  width: 280px;
-  height: 280px;
-  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  outline: none;
+  transition: transform 0.1s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -148,88 +126,85 @@ html, body, #root {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 0 15px var(--color-cyan)) drop-shadow(0 0 25px rgba(255, 196, 0, 0.5));
   pointer-events: none;
-  /* Неоновый свет: Cyan + Yellow/Gold */
-  filter: drop-shadow(0 0 15px var(--color-accent-cyan)) 
-          drop-shadow(0 0 25px rgba(255, 196, 0, 0.6));
 }
 
 .tap-button:active {
-  transform: scale(0.92); /* Чуть более заметное нажатие */
+  transform: scale(0.9);
 }
 
 .tap-button:disabled img {
-  filter: grayscale(100%) opacity(0.2) drop-shadow(0 0 0 transparent);
+  filter: grayscale(100%) opacity(0.3);
 }
 
-/* --- 6. ЭНЕРГИЯ --- */
+/* === 7. ENERGY BAR === */
 .footer {
   width: 100%;
-  max-width: 400px; 
-  margin-top: auto; /* Прижимаем к низу */
-  margin-bottom: 20px;
+  max-width: 400px;
+  margin-bottom: 16px;
 }
 
 .energy-text {
   display: flex;
   justify-content: space-between;
-  font-size: 16px; /* Чуть крупнее */
+  color: var(--color-green);
   font-weight: 700;
-  margin-bottom: 6px;
-  color: var(--color-energy-fill); /* Цвет текста как у полоски */
-  text-shadow: 0 0 4px rgba(57, 255, 20, 0.5); /* Неоновое свечение */
+  font-size: 14px;
+  text-shadow: 0 0 4px rgba(57, 255, 20, 0.6);
+  margin-bottom: 4px;
 }
 
 .progress-bar {
   width: 100%;
-  height: 16px; /* Высокая полоска */
+  height: 14px;
   background-color: #111;
   border-radius: 8px;
-  overflow: hidden;
   border: 1px solid #333;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8); /* Эффект вдавливания */
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  /* Неоновый зеленый градиент */
-  background: linear-gradient(90deg, #109e53, var(--color-energy-fill)); 
-  transition: width 0.2s linear; 
-  box-shadow: 0 0 10px var(--color-energy-fill); /* Сильное свечение полоски */
+  width: 0%;
+  background: linear-gradient(90deg, #109e53, var(--color-green));
+  transition: width 0.25s ease-out;
+  box-shadow: 0 0 12px var(--color-green);
 }
 
-/* --- 7. ТАБ-БАР --- */
+/* === 8. TAB BAR === */
 .tab-bar {
   width: 100%;
-  height: 80px; /* Чуть выше */
-  background-color: rgba(0, 0, 0, 0.9);
-  border-top: 2px solid var(--color-accent-cyan);
+  height: 70px;
+  background: rgba(0, 0, 0, 0.9);
+  border-top: 1.5px solid var(--color-cyan);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.9);
 }
 
 .tab-button {
-  background: none;
   border: none;
-  color: var(--color-inactive); 
-  font-family: var(--font-family-base);
-  font-size: 14px;
+  background: none;
+  color: var(--color-gray);
   font-weight: 700;
+  font-size: 13px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  transition: color 0.2s;
-  padding: 10px 15px;
+  gap: 4px;
+  transition: color 0.2s, transform 0.2s;
+  padding: 8px;
 }
 
 .tab-button.active {
-  color: var(--color-accent-cyan);
-  text-shadow: 0 0 5px var(--color-accent-cyan);
+  color: var(--color-cyan);
+  text-shadow: 0 0 6px var(--color-cyan);
+  transform: translateY(-2px);
 }
 
 .tab-button span {
-    font-size: 24px; /* Крупнее иконки */
+  font-size: 22px;
 }
