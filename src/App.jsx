@@ -1,45 +1,88 @@
 import React, { useState, useEffect } from 'react';
-// Импортируем обе страницы
+// 1. ИМПОРТ SUPABASE КЛИЕНТА
+import { supabase } from './supabaseClient'; 
 import TapperScreen from './TapperScreen';
 import TasksScreen from './TasksScreen';
 import coinIconImage from './assets/coin.png'; 
-import './App.css'; // Общие стили для всего
+import './App.css'; 
 
 function App() {
   // 1. СОСТОЯНИЕ (State)
-  // [ACTIVE VIEW] - Храним, какая страница активна
-  const [activeView, setActiveView] = useState('tapper'); // Начинаем с тапалки
+  // 👇 НОВОЕ: User и Loading состояния для Supabase
+  const [user, setUser] = useState(null); 
+  const [loading, setLoading] = useState(true); 
+  
+  const [activeView, setActiveView] = useState('tapper'); 
 
-// [GAME STATE] - Вся логика игры остается здесь, чтобы работать в фоне
+  // [GAME STATE]
   const [points, setPoints] = useState(() => {
     const saved = localStorage.getItem('points');
     const parsedValue = parseInt(saved);
-    // Если saved существует и parsedValue - это число, возвращаем его, иначе 0
     return (saved && !isNaN(parsedValue)) ? parsedValue : 0; 
   });
 
   const [energy, setEnergy] = useState(() => {
     const saved = localStorage.getItem('energy');
     const parsedValue = parseInt(saved);
-    // То же самое для энергии, но если нет, то 1000
     return (saved && !isNaN(parsedValue)) ? parsedValue : 1000;
   });
   const MAX_ENERGY = 1000;
 
-  const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0);
+  const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0); 
 
-  // 2. ВСЕ USEEFFECT И ЛОГИКА ОСТАЮТСЯ ЗДЕСЬ
+  // 2. БЛОКИ USEEFFECT и ЛОГИКА
 
-  // Сохранение данных в localStorage
+  // 2.1. АВТОРИЗАЦИЯ И ЗАГРУЗКА ДАННЫХ (Главный useEffect)
   useEffect(() => {
-    // 🛑 ИСПРАВЛЕНИЕ: Проверяем, что переменные не undefined перед вызовом .toString()
-    if (points !== undefined && energy !== undefined) {
-      localStorage.setItem('points', points.toString());
-      localStorage.setItem('energy', energy.toString());
-    }
-  }, [points, energy]);
+    async function getAuth() {
+      // 1. Авторизация (signInAnonymously - временно, для TWA)
+      const { data: { user } } = await supabase.auth.signInAnonymously();
 
-  // Регенерация энергии
+      if (user) {
+        setUser(user);
+        await loadPlayerData(user.id);
+      } else {
+        setLoading(false); 
+      }
+    }
+
+    async function loadPlayerData(userId) {
+      // 2. Загрузка данных игрока
+      const { data, error } = await supabase
+        .from('players')
+        .select(`points, energy_current`)
+        .eq('id', userId)
+        .single(); 
+
+      if (data) {
+        setPoints(data.points);
+        setEnergy(data.energy_current);
+      } else if (error && error.code === 'PGRST116') { // Игрок не найден
+        await initializeNewPlayer(userId);
+      }
+      setLoading(false);
+    }
+    
+    async function initializeNewPlayer(userId) {
+      const { error } = await supabase
+        .from('players')
+        .insert({ 
+          id: userId, 
+          username: 'Anonymous', 
+          points: 0, 
+          energy_current: 1000
+        });
+      
+      if (!error) {
+        setPoints(0);
+        setEnergy(1000);
+      }
+    }
+
+    getAuth(); // Запускаем процесс авторизации при старте
+  }, []); 
+
+  // 2.2. Регенерация энергии
   useEffect(() => {
     const interval = setInterval(() => {
       setEnergy((prevEnergy) => (prevEnergy < MAX_ENERGY ? prevEnergy + 1 : prevEnergy));
@@ -47,20 +90,35 @@ function App() {
     return () => clearInterval(interval); 
   }, []);
 
-  // Блокировка масштабирования (ВАЖНО! Оставляем здесь)
-// 3. Сохранение данных в базу данных с Debounce
+  // 2.3. Блокировка масштабирования (ВОССТАНОВЛЕНО!)
   useEffect(() => {
-    // Если буфер пуст или пользователь еще не загружен, выходим
+    const handleWheel = (e) => { if (e.ctrlKey) e.preventDefault(); };
+    const handleKeydown = (e) => { 
+      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=')) e.preventDefault(); 
+    };
+    const handleTouchMove = (e) => { if (e.touches.length > 1) e.preventDefault(); };
+
+    document.addEventListener('wheel', handleWheel, { passive: false });
+    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      document.removeEventListener('wheel', handleWheel);
+      document.removeEventListener('keydown', handleKeydown);
+      document.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
+
+  // 2.4. Сохранение данных в базу данных с Debounce
+  useEffect(() => {
+    // ВЫХОД: Если буфер пуст ИЛИ user не загружен
     if (tapsSinceLastSave === 0 || !user) return;
 
-    // Функция, которая делает POST-запрос в Supabase
     const saveToDatabase = async () => {
-      // Суммируем текущие очки и сбрасываем счетчик буфера
       const finalPoints = points; 
       const finalEnergy = energy;
 
-      // Сбрасываем счетчик буфера *перед* отправкой, чтобы не было дублей
-      setTapsSinceLastSave(0); 
+      setTapsSinceLastSave(0); // Сбрасываем буфер
 
       console.log(`Отправка в БД: ${finalPoints} pts, ${finalEnergy} energy`);
 
@@ -71,39 +129,41 @@ function App() {
           points: finalPoints,
           energy_current: finalEnergy 
         })
-        .eq('id', user.id); 
+        .eq('id', user.id); // 👈 ИСПОЛЬЗУЕМ user.id!
 
       if (error) {
-        // Если ошибка, возвращаем очки обратно в буфер (упрощенная логика)
         console.error('Ошибка сохранения:', error);
-        // setTapsSinceLastSave(prev => prev + (finalPoints - points)); 
       }
     };
     
-    // 🛑 DEBOUNCE LOGIC: Таймер для отложенной отправки
-    const timeoutId = setTimeout(saveToDatabase, 3000); // Отправляем через 3 секунды бездействия
+    const timeoutId = setTimeout(saveToDatabase, 3000); // Отправляем через 3 секунды
 
-    // Очистка таймера: если клик произошел снова, мы отменяем предыдущую отправку
     return () => clearTimeout(timeoutId);
 
-  // Этот useEffect сработает, когда изменится tapsSinceLastSave, points или energy
-  }, [tapsSinceLastSave, points, energy, user]);
-  
-  // Функция клика передается в TapperScreen
+  // Следим за user, tapsSinceLastSave, points, energy
+  }, [tapsSinceLastSave, points, energy, user]); 
+
+  // 3. Функция клика (handleTap)
   const handleTap = () => {
     if (energy <= 0) return;
     
-    // Увеличиваем монеты и тратим энергию (Локально)
     setPoints((prev) => prev + 1);
     setEnergy((prev) => prev - 1);
-    
-    // 👇 Увеличиваем счетчик кликов в буфере
     setTapsSinceLastSave((prev) => prev + 1); 
 
     if (window.navigator.vibrate) window.navigator.vibrate(50);
   };
+  
+  // 4. ЭКРАН ЗАГРУЗКИ
+  if (loading || !user) {
+    return (
+      <div className="game-container app-shell" style={{justifyContent: 'center'}}>
+        <h1 style={{color: 'var(--color-accent-cyan)'}}>Загрузка данных...</h1>
+      </div>
+    );
+  }
 
-  // 3. ФУНКЦИЯ РЕНДЕРИНГА (РОУТЕР)
+  // 5. ФУНКЦИЯ РЕНДЕРИНГА (РОУТЕР)
   const renderView = () => {
     if (activeView === 'tapper') {
       return (
@@ -122,18 +182,16 @@ function App() {
   return (
     <div className="game-container app-shell">
       
-      {/* 4. ВЕРХНИЙ ИНТЕРФЕЙС (Общий для всех страниц) */}
+      {/* 6. РЕНДЕРИНГ ОСНОВНОГО UI (УДАЛЕНО СОХРАНЕНИЕ В localStorage) */}
       <div className="top-ui">
           <img src={coinIconImage} alt="Coin" className="coin-icon" />
           <div className="view-title">{activeView === 'tapper' ? 'Клик' : 'Задания'}</div>
       </div>
 
-      {/* 5. ОБЛАСТЬ СТРАНИЦ */}
       <div className="content-area">
         {renderView()}
       </div>
 
-      {/* 6. НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ */}
       <div className="tab-bar">
         <button 
           className={`tab-button ${activeView === 'tapper' ? 'active' : ''}`}
