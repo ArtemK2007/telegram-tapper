@@ -10,9 +10,20 @@ function App() {
   // [ACTIVE VIEW] - Храним, какая страница активна
   const [activeView, setActiveView] = useState('tapper'); // Начинаем с тапалки
 
-  // [GAME STATE] - Вся логика игры остается здесь, чтобы работать в фоне
-  const [points, setPoints] = useState(() => { /* ... load points ... */ });
-  const [energy, setEnergy] = useState(() => { /* ... load energy ... */ });
+// [GAME STATE] - Вся логика игры остается здесь, чтобы работать в фоне
+  const [points, setPoints] = useState(() => {
+    const saved = localStorage.getItem('points');
+    const parsedValue = parseInt(saved);
+    // Если saved существует и parsedValue - это число, возвращаем его, иначе 0
+    return (saved && !isNaN(parsedValue)) ? parsedValue : 0; 
+  });
+
+  const [energy, setEnergy] = useState(() => {
+    const saved = localStorage.getItem('energy');
+    const parsedValue = parseInt(saved);
+    // То же самое для энергии, но если нет, то 1000
+    return (saved && !isNaN(parsedValue)) ? parsedValue : 1000;
+  });
   const MAX_ENERGY = 1000;
 
   // 2. ВСЕ USEEFFECT И ЛОГИКА ОСТАЮТСЯ ЗДЕСЬ
