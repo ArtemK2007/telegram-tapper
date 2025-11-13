@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import tapImage from './assets/tap.png'; 
+// 👇 НОВАЯ СТРОКА: Импортируем иконку валюты
+import coinIconImage from './assets/coin.png'; 
 import './App.css'; 
 
 function App() {
@@ -15,13 +17,11 @@ function App() {
 
   const MAX_ENERGY = 1000;
 
-  // 1. Сохранение данных в localStorage (Память)
   useEffect(() => {
     localStorage.setItem('points', points.toString());
     localStorage.setItem('energy', energy.toString());
   }, [points, energy]);
 
-  // 2. Регенерация энергии (восстанавливаем 1 ед. каждую секунду)
   useEffect(() => {
     const interval = setInterval(() => {
       setEnergy((prevEnergy) => {
@@ -33,13 +33,11 @@ function App() {
     }, 1000); 
 
     return () => clearInterval(interval); 
-  }, []); // Выполняется один раз при старте
+  }, []); 
 
-  // 3. Блокировка масштабирования и зума (Наш новый блок)
   useEffect(() => {
     const handleWheel = (e) => {
       if (e.ctrlKey) {
-        // console.log("!!! Z O O M attempt detected !!!"); // <-- Можно удалить после диагностики
         e.preventDefault();
       }
     };
@@ -68,9 +66,8 @@ function App() {
       document.removeEventListener('keydown', handleKeydown);
       document.removeEventListener('touchmove', handleTouchMove);
     };
-  }, []); // Выполняется один раз при старте
+  }, []);
   
-  // 4. Функция клика
   const handleTap = () => {
     if (energy <= 0) return;
     setPoints((prev) => prev + 1);
@@ -82,7 +79,8 @@ function App() {
     <div className="game-container">
       
       <div className="header">
-        <span className="coin-icon">💎</span>
+        {/* 👇 ЗАМЕНЯЕМ ЭМОДЗИ НА КАРТИНКУ */}
+        <img src={coinIconImage} alt="Coin" className="coin-icon" />
         <h1 className="score">{points.toLocaleString()}</h1>
       </div>
 
