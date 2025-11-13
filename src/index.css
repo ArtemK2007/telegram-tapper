@@ -1,45 +1,125 @@
+/* 1. Подключаем шрифты Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
+
+/* 2. Глобальный сброс браузерных стилей (ОЧЕНЬ ВАЖНО!) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none; /* Запрет выделения текста */
+  -webkit-user-select: none; /* Для iOS */
+  touch-action: manipulation; /* Предотвращает зум по двойному тапу */
+}
+
+/* 3. Базовые стили для body и html */
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Запрещает прокрутку */
+  background-color: #000000; /* Глубокий черный фон для всего приложения */
+  color: white; /* Цвет текста по умолчанию */
+  font-family: 'Montserrat', sans-serif; /* Основной шрифт */
+}
+
+/* 4. Главный контейнер игры */
+.game-container {
+  width: 100vw;
+  height: 100dvh; /* Dynamic viewport height для корректной работы на мобильных */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Распределяет элементы по вертикали */
+  align-items: center; /* Центрирует по горизонтали */
+  padding: 20px;
+  padding-top: 40px; /* Немного отступа сверху, чтобы не прилипало к заголовку ТГ */
+  padding-bottom: 40px;
+}
+
+/* --- ВЕРХНЯЯ ПАНЕЛЬ: ОЧКИ --- */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px; /* Отступ между иконкой и счетом */
+}
+
+.coin-icon {
+  font-size: 40px; /* Размер иконки монеты */
+}
+
+.score {
+  font-size: 48px; /* Размер шрифта для очков */
+  font-weight: 900; /* Жирный шрифт */
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3); /* Легкое свечение для очков */
+}
+
 /* --- ЦЕНТР: КНОПКА-КАРТИНКА --- */
 .tap-area {
-  flex-grow: 1;
+  flex-grow: 1; /* Занимает все доступное вертикальное пространство */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Сама кнопка теперь прозрачная, она просто контейнер */
 .tap-button {
-  background: none; /* Убираем фон */
-  border: none;     /* Убираем рамку */
-  outline: none;    /* Убираем обводку при нажатии */
+  background: none; /* Убираем фоновый цвет кнопки */
+  border: none;      /* Убираем рамку */
+  outline: none;     /* Убираем обводку при фокусе */
   cursor: pointer;
-  width: 280px;     /* Размер кнопки можно менять тут */
+  width: 280px;      /* Фиксированный размер кнопки */
   height: 280px;
   
-  /* Анимация нажатия */
-  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Пружинистый эффект */
-  -webkit-tap-highlight-color: transparent; /* Убирает синий квадрат на Андроиде */
+  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Пружинящая анимация */
+  -webkit-tap-highlight-color: transparent; /* Убираем синее выделение при тапе на Android */
 }
 
-/* Настройки самой картинки внутри */
 .tap-button img {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* Чтобы картинка не сплющилась */
-  pointer-events: none; /* Важно: чтобы клик проходил сквозь картинку на кнопку */
-  filter: drop-shadow(0 0 15px rgba(51, 144, 236, 0.4)); /* Тень вокруг картинки */
+  object-fit: contain; /* Картинка масштабируется внутри кнопки */
+  pointer-events: none; /* Клик проходит сквозь картинку на кнопку */
+  filter: drop-shadow(0 0 15px rgba(51, 144, 236, 0.4)); /* Неоновая тень вокруг картинки */
 }
 
-/* Эффект при нажатии (уменьшение) */
 .tap-button:active {
-  transform: scale(0.90); 
+  transform: scale(0.90); /* Эффект уменьшения при нажатии */
 }
 
-/* Если нет энергии (картинка становится черно-белой и прозрачной) */
 .tap-button:disabled {
   cursor: not-allowed;
-  transform: none;
+  transform: none; /* Отключаем анимацию при блокировке */
 }
 
 .tap-button:disabled img {
-  filter: grayscale(100%) opacity(0.5);
+  filter: grayscale(100%) opacity(0.5); /* Картинка серая и полупрозрачная при блокировке */
+}
+
+/* --- НИЖНЯЯ ПАНЕЛЬ: ЭНЕРГИЯ --- */
+.footer {
+  width: 100%;
+  max-width: 400px; /* Ограничиваем ширину полоски энергии */
+  align-self: center; /* Центрируем футер по горизонтали */
+}
+
+.energy-text {
+  display: flex;
+  justify-content: space-between; /* Разносим текст "Energy" и цифры по краям */
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #aaa; /* Светло-серый цвет для текста энергии */
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background-color: #222; /* Темно-серый фон полоски */
+  border-radius: 6px;
+  overflow: hidden; /* Обрезает содержимое, чтобы fill не вылез за края */
+  border: 1px solid #333; /* Тонкая рамка */
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f1c40f, #f39c12); /* Градиент "золотого" цвета */
+  transition: width 0.2s linear; /* Плавное изменение ширины полоски */
 }
