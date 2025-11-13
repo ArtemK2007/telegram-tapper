@@ -6,12 +6,11 @@
   --color-muted: #555;
   --color-gold: #f5c400;
   --color-progress-bg: #1e1e1e;
-  --font-base: 'Inter', 'Roboto', system-ui, sans-serif;
+  --font-base: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Roboto", "Segoe UI", system-ui, sans-serif;
 }
 
 /* === 2. БАЗА === */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;800&display=swap');
-
+/* Убираем импорт Inter, так как теперь используем системный шрифт */
 * {
   margin: 0;
   padding: 0;
