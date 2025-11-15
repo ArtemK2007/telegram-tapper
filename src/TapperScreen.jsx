@@ -111,7 +111,8 @@ function TapDarkCSS() {
 
       .tap-dark-balance {
         align-self: center;
-        margin-bottom: 4px;
+        margin-top: 10px;
+        margin-bottom: 8px;
         padding: 6px 14px;
         border-radius: 999px;
         background: rgba(10, 12, 22, 0.96);
