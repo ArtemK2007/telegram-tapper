@@ -36,7 +36,7 @@ export default function App() {
   const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0);
 
   const [playerName, setPlayerName] = useState("");
-  const [playerBranch] = useState("Main"); // пока просто Main, без вычислений
+  const [playerBranch, setPlayerBranch] = useState("Main"); // Tester / Old / Main
 
   useEffect(() => {
     async function authenticate() {
@@ -56,11 +56,11 @@ export default function App() {
       }
     }
 
-    async function loadPlayer(id) {
+    async function loadPlayer(tgId) {
       const { data, error } = await supabase
         .from("players")
-        .select("username, points, energy_current")
-        .eq("id", id)
+        .select("username, points, energy_current, serial_id")
+        .eq("tg_id", tgId)
         .single();
 
       if (data) {
@@ -68,11 +68,16 @@ export default function App() {
         setEnergy(data.energy_current ?? 1000);
         setPlayerName(data.username ?? "");
         setNeedsName(false);
+
+        // ветка по serial_id
+        const sid = data.serial_id;
+        if (sid < 100) setPlayerBranch("Tester");
+        else if (sid <= 1500) setPlayerBranch("Old");
+        else setPlayerBranch("Main");
       } else if (error && error.code === "PGRST116") {
-        // нет строки в players — новый игрок → просим ввести имя
+        // новый игрок
         setNeedsName(true);
       } else if (error) {
-        // любая другая ошибка — тоже ведём через ввод имени, чтобы не ломать UX
         console.error("loadPlayer error:", error);
         setNeedsName(true);
       }
@@ -100,14 +105,18 @@ export default function App() {
       return;
     }
 
-    // создаём запись игрока — без created_at, под твою схему
-    const { error: insertError } = await supabase.from("players").insert({
-      id: user.id,
-      username,
-      points: 0,
-      energy_current: 1000,
-      energy_max: 1000,
-    });
+    // создаём запись: tg_id = user.id, serial_id база создаёт сама
+    const { data: inserted, error: insertError } = await supabase
+      .from("players")
+      .insert({
+        tg_id: user.id,
+        username,
+        points: 0,
+        energy_current: 1000,
+        energy_max: 1000,
+      })
+      .select("username, points, energy_current, serial_id")
+      .single();
 
     if (insertError) {
       console.error("insert player error:", insertError);
@@ -115,10 +124,16 @@ export default function App() {
       return;
     }
 
-    setPoints(0);
-    setEnergy(1000);
-    setPlayerName(username);
+    setPoints(inserted.points ?? 0);
+    setEnergy(inserted.energy_current ?? 1000);
+    setPlayerName(inserted.username ?? "");
     setNeedsName(false);
+
+    const sid = inserted.serial_id;
+    if (sid < 100) setPlayerBranch("Tester");
+    else if (sid <= 1500) setPlayerBranch("Old");
+    else setPlayerBranch("Main");
+
     setLoading(false);
   }
 
@@ -164,7 +179,7 @@ export default function App() {
           points: points,
           energy_current: energy,
         })
-        .eq("id", user.id);
+        .eq("tg_id", user.id); // обновляем по tg_id
 
       if (error) {
         console.error("update player error:", error);
