@@ -11,16 +11,18 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
 
   const spawnFloater = () => {
     const id = Math.random();
-    const x = 50 + (Math.random() * 40 - 20);
+    const x = 50 + (Math.random() * 40 - 20); 
     setFloaters((p) => [...p, { id, x }]);
     setTimeout(() => {
       setFloaters((p) => p.filter((f) => f.id !== id));
-    }, 900);
+    }, 850);
   };
 
   const onTap = () => {
-    spawnFloater();
-    handleTap();
+    if (energy > 0) {
+      spawnFloater();
+      handleTap();
+    }
   };
 
   return (
@@ -29,17 +31,19 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      {/* ✔ ПАРАЛЛАКСОВЫЙ ПЛАЗМЕННЫЙ ФОН */}
-      <div className="tapper-bg" />
+      {/* ЕДИНЫЙ ГОЛОГРАФИЧЕСКИЙ ФОН */}
+      <div className="tapper-bg-grid" />
 
-      {/* ----------------- SCORE PANEL ----------------- */}
+      {/* ----------------- SCORE PANEL (СНОВА ПЕРЕДЕЛАНО) ----------------- */}
       <motion.div
         className="tapper-score-panel"
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
       >
-        <Coins className="tapper-coins-icon" size={24} />
+        <Coins className="tapper-coins-icon" size={26} />
         <div className="tapper-score-value">{points.toLocaleString()}</div>
+        
+        {/* УДАЛИЛ: Голографический обвод */}
       </motion.div>
 
       {/* ----------------- TAP BUTTON AREA ----------------- */}
@@ -48,8 +52,8 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
           className={`tapper-button ${energy <= 0 ? "disabled" : ""}`}
           onClick={onTap}
           disabled={energy <= 0}
-          whileTap={{ scale: 0.9 }}
-          animate={{ scale: energy <= 0 ? 0.94 : 1 }}
+          whileTap={{ scale: 0.88 }}
+          animate={{ scale: energy <= 0 ? 0.92 : 1 }}
           transition={{ type: "spring", stiffness: 200, damping: 14 }}
         >
           {/* ПЛАЗМЕННОЕ ЯДРО */}
@@ -58,8 +62,8 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
           {/* УДАРНАЯ ВОЛНА */}
           <motion.div
             className="tap-wave"
-            animate={{ scale: [0.7, 1.6], opacity: [0.45, 0] }}
-            transition={{ duration: 0.6 }}
+            animate={{ scale: [0.7, 1.8], opacity: [0.6, 0] }}
+            transition={{ duration: 0.45 }}
             key={points}
           />
 
@@ -74,8 +78,8 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
             animate={{
               filter:
                 energy <= 0
-                  ? "drop-shadow(0px 0px 4px rgba(255,50,50,0.5))"
-                  : "drop-shadow(0px 0px 10px rgba(80,170,255,0.9))",
+                  ? "drop-shadow(0px 0px 8px rgba(255,50,50,0.8)) hue-rotate(20deg)"
+                  : "drop-shadow(0px 0px 16px rgba(80,170,255,1))",
             }}
           />
 
@@ -89,8 +93,8 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
             key={f.id}
             className="floater"
             initial={{ opacity: 1, y: 0, x: f.x }}
-            animate={{ opacity: 0, y: -90 }}
-            transition={{ duration: 0.8 }}
+            animate={{ opacity: 0, y: -100 }}
+            transition={{ duration: 0.85 }}
           >
             +1
           </motion.div>
@@ -104,7 +108,7 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="tapper-energy-header">
-          <span>⚡ Энергия</span>
+          <span className="energy-header-text">⚡ ЭНЕРГИЯ</span>
           <span>
             {energy} / {MAX_ENERGY}
           </span>
@@ -148,81 +152,89 @@ body {
 }
 
 /* -------------------------------------------------
-   ПЛАЗМЕННЫЙ АНИМИРОВАННЫЙ ФОН
+    ГОЛОГРАФИЧЕСКИЙ ФОН
 ------------------------------------------------- */
-.tapper-bg {
+.tapper-bg-grid {
   position: absolute;
   inset: 0;
   z-index: -5;
 
-  background: radial-gradient(circle at 50% 70%, #0c1624, #05070c 70%);
-  opacity: 1;
-  filter: blur(4px);
-}
-
-.tapper-bg::before {
-  content: "";
-  position: absolute;
-  inset: -40%;
-  background: conic-gradient(
-    from 0deg,
-    rgba(0,150,255,0.15),
-    rgba(0,0,0,0.1),
-    rgba(0,150,255,0.25),
-    rgba(0,0,0,0.1),
-    rgba(0,150,255,0.15)
+  background: radial-gradient(
+    circle at 50% 20%,
+    rgba(100,100,120,0.3) 0%,
+    rgba(10,10,15,1) 45%,
+    rgba(0,0,0,1) 100%
   );
-  animation: spin 22s linear infinite;
-  mix-blend-mode: screen;
+  
+  background-image:
+    linear-gradient(rgba(100,150,255,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100,150,255,0.08) 1px, transparent 1px);
+  background-size: 34px 34px;
+  opacity: 0.35;
+  filter: blur(0.5px);
+  
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
 /* -------------------------------------------------
-   SCORE PANEL
+    SCORE PANEL (ПЕРЕДЕЛАННЫЙ ГЛЯНЦЕВЫЙ СЛИТОК)
 ------------------------------------------------- */
 .tapper-score-panel {
+  position: relative; 
   margin-top: 10px;
-  padding: 10px 26px;
-  border-radius: 18px;
+  padding: 12px 28px;
+  border-radius: 20px;
 
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(22px);
+  /* Небольшая, чистая прозрачность */
+  background: rgba(255,255,255,0.1); 
+  backdrop-filter: blur(18px); 
 
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 
-  border: 1px solid rgba(255,255,255,0.06);
-
+  /* Толстая, заметная рамка */
+  border: 2px solid rgba(255,255,255,0.3); 
+  
   box-shadow:
-    inset 0 0 20px rgba(255,255,255,0.03),
-    0 4px 20px rgba(0,0,0,0.6);
+    inset 0 0 40px rgba(255,255,255,0.15), /* Мощный внутренний блик */
+    0 8px 30px rgba(0,0,0,0.8); /* Глубокая тень */
 
   width: max-content;
   margin-left: auto;
   margin-right: auto;
+  z-index: 10;
+  overflow: hidden;
+  
+  /* Добавляем внутренний глянцевый градиент для объема */
+  background-image: linear-gradient(
+    180deg, 
+    rgba(255,255,255,0.15) 0%, 
+    rgba(255,255,255,0) 50%
+  );
 }
 
+/* УДАЛИЛ: score-panel-glow-border и @keyframes glowMove */
+
 .tapper-coins-icon {
-  color: #cdd8ff;
-  opacity: 0.85;
-  filter: drop-shadow(0 0 5px rgba(140,170,255,0.4));
+  color: #aed9ff;
+  opacity: 0.95;
+  /* Усилил свечение иконки */
+  filter: drop-shadow(0 0 10px rgba(135,206,250,1));
 }
 
 .tapper-score-value {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 800;
   color: #fff;
-  letter-spacing: 0.3px;
-  text-shadow: 0 0 6px rgba(140,170,255,0.35);
+  letter-spacing: 0.5px;
+  /* Усилил свечение текста */
+  text-shadow: 0 0 12px rgba(140,170,255,0.9);
 }
 
 /* -------------------------------------------------
-   TAP BUTTON / REACTOR CORE
+    TAP BUTTON / REACTOR CORE (Размеры оставлены максимальными)
 ------------------------------------------------- */
 .tapper-center {
   display: flex;
@@ -240,11 +252,12 @@ body {
   cursor: pointer;
   border-radius: 50%;
   outline: none;
+  touch-action: manipulation;
 }
 
 .tapper-button.disabled {
-  opacity: 0.35;
-  transition: 0.2s;
+  opacity: 0.4;
+  transition: 0.3s;
 }
 
 /* ПЛАЗМЕННОЕ ЯДРО (ВНУТРИ КНОПКИ) */
@@ -252,22 +265,21 @@ body {
   position: absolute;
   inset: 0;
   margin: auto;
-  width: 240px;
-  height: 240px;
+  width: 350px; 
+  height: 350px; 
   border-radius: 50%;
   background: radial-gradient(circle,
-    rgba(50,150,255,0.25),
-    rgba(0,0,0,0.4) 70%
+    rgba(50,150,255,0.35),
+    rgba(0,0,0,0.5) 75%
   );
-  filter: blur(35px);
-  animation: corePulse 4s infinite ease-in-out;
+  filter: blur(55px);
+  animation: corePulse 3s infinite alternate ease-in-out;
   z-index: -3;
 }
 
 @keyframes corePulse {
-  0% { transform: scale(1); opacity: 0.45; }
-  50% { transform: scale(1.18); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 0.45; }
+  0% { transform: scale(0.95); opacity: 0.55; }
+  100% { transform: scale(1.25); opacity: 0.8; }
 }
 
 /* УДАРНАЯ ВОЛНА */
@@ -275,10 +287,11 @@ body {
   position: absolute;
   inset: 0;
   margin: auto;
-  width: 260px;
-  height: 260px;
+  width: 350px; 
+  height: 350px; 
   border-radius: 50%;
-  border: 2px solid rgba(100,170,255,0.4);
+  border: 4px solid rgba(135,206,250,0.7);
+  box-shadow: 0 0 25px rgba(135,206,250,0.5);
   z-index: -1;
 }
 
@@ -287,29 +300,30 @@ body {
   position: absolute;
   inset: 0;
   margin: auto;
-  width: 210px;
-  height: 210px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
 
   background: radial-gradient(
     circle,
-    rgba(100,170,255,0.35) 0%,
-    rgba(100,170,255,0.05) 55%,
-    transparent 75%
+    rgba(100,170,255,0.4) 0%,
+    rgba(100,170,255,0.1) 60%,
+    transparent 80%
   );
 
-  filter: blur(28px);
+  filter: blur(45px);
   z-index: -2;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 /* КНОПКА / КАРТИНКА */
 .tapper-button-img {
-  width: 210px;
-  height: 210px;
+  width: 300px;
+  height: 300px;
   user-select: none;
   z-index: 3;
-  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.7));
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
+  border-radius: 50%;
 }
 
 /* ГЛОУ */
@@ -318,75 +332,81 @@ body {
   inset: 0;
   border-radius: 50%;
   background: radial-gradient(circle,
-    rgba(150,170,255,0.3),
-    transparent 70%
+    rgba(150,170,255,0.4),
+    transparent 80%
   );
-  filter: blur(26px);
+  filter: blur(35px);
   z-index: -1;
 }
 
 /* -------------------------------------------------
-   FLOATING +1
+    FLOATING +1
 ------------------------------------------------- */
 .floater {
   position: absolute;
-  font-size: 28px;
-  font-weight: 700;
-  color: #cfe2ff;
-  text-shadow: 0 0 6px rgba(150,170,255,0.9);
+  font-size: 32px;
+  font-weight: 800;
+  color: #e0f0ff;
+  text-shadow: 0 0 10px rgba(150,170,255,1);
   pointer-events: none;
 }
 
 /* -------------------------------------------------
-   ENERGY BAR
+    ENERGY BAR
 ------------------------------------------------- */
 .tapper-energy-panel {
-  padding: 18px;
+  padding: 16px;
   border-radius: 18px;
 
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(24px);
 
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
   box-shadow:
-    inset 0 0 20px rgba(255,255,255,0.03),
-    0 0 20px rgba(0,0,0,0.4);
+    inset 0 0 20px rgba(255,255,255,0.05),
+    0 0 30px rgba(0,0,0,0.5);
 
   margin-bottom: 10px;
+  z-index: 10;
 }
 
 .tapper-energy-header {
-  font-size: 15px;
-  color: rgba(255,255,255,0.85);
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.6px;
+}
+
+.energy-header-text {
+    text-shadow: 0 0 4px rgba(150,170,255,0.4);
 }
 
 .tapper-energy-bar {
   width: 100%;
-  height: 16px;
+  height: 18px;
   border-radius: 12px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.08);
   overflow: hidden;
   position: relative;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .tapper-energy-fill {
-  height: 16px;
+  height: 100%;
   border-radius: 12px;
 
   background: linear-gradient(
     90deg,
-    rgba(140,200,255,0.9),
-    rgba(180,210,255,0.65)
+    #4a90e2 0%,
+    #7bc0ff 100%
   );
 
   box-shadow:
-    0 0 14px rgba(150,170,255,0.45),
-    inset 0 0 10px rgba(150,170,255,0.3);
+    0 0 18px rgba(100,170,255,0.6),
+    inset 0 0 10px rgba(255,255,255,0.2);
 }
 
 `}</style>

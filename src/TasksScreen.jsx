@@ -1,16 +1,15 @@
 import React from 'react';
-import './App.css';
 
 export default function TasksScreen() {
   return (
     <div className="tasks-wrapper">
 
-      {/* Фоновая сетка */}
+      {/* Голографическая фоновая сетка */}
       <div className="tasks-bg-grid"></div>
 
       <div className="tasks-card">
 
-        {/* 3D ICON */}
+        {/* 3D ICON - Улучшенное неоновое свечение */}
         <div className="tasks-icon-wrapper">
           <div className="tasks-icon-glow"></div>
           <svg
@@ -30,35 +29,24 @@ export default function TasksScreen() {
           </svg>
         </div>
 
-        <h2 className="tasks-title">Задания скоро появятся</h2>
-        <p className="tasks-subtitle">Список обновляется…</p>
+        {/* Измененный заголовок и подзаголовок */}
+        <h2 className="tasks-title">⚙️ ПОДГОТОВКА К ЗАПУСКУ</h2>
+        <p className="tasks-subtitle">Получи максимум монет за выполнение следующих шагов:</p>
 
-        {/* SKELETON LIST */}
+        {/* SKELETON LIST - Премиальная загрузка */}
         <div className="tasks-skeleton-list">
 
-          <div className="task-skeleton">
-            <div className="task-skeleton-icon"></div>
-            <div className="task-skeleton-lines">
-              <div className="task-skeleton-line short"></div>
-              <div className="task-skeleton-line long"></div>
+          {/* Увеличил количество скелетов для ощущения масштаба */}
+          {[1, 2, 3].map((i) => (
+            <div className="task-skeleton" key={i}>
+              <div className="task-skeleton-icon"></div>
+              <div className="task-skeleton-lines">
+                {/* Скелетные линии разных размеров для разнообразия */}
+                <div className={`task-skeleton-line ${i % 2 === 0 ? 'short' : 'long'}`}></div>
+                <div className={`task-skeleton-line ${i % 2 === 0 ? 'long' : 'short'}`}></div>
+              </div>
             </div>
-          </div>
-
-          <div className="task-skeleton">
-            <div className="task-skeleton-icon"></div>
-            <div className="task-skeleton-lines">
-              <div className="task-skeleton-line short"></div>
-              <div className="task-skeleton-line long"></div>
-            </div>
-          </div>
-
-          <div className="task-skeleton">
-            <div className="task-skeleton-icon"></div>
-            <div className="task-skeleton-lines">
-              <div className="task-skeleton-line short"></div>
-              <div className="task-skeleton-line long"></div>
-            </div>
-          </div>
+          ))}
 
         </div>
 
@@ -75,6 +63,7 @@ function TasksCSS() {
   return (
     <style>{`
     
+    /* === WRAPPER === */
     .tasks-wrapper {
       width: 100%;
       height: 100%;
@@ -84,55 +73,76 @@ function TasksCSS() {
       align-items: center;
       position: relative;
       overflow: hidden;
+      overflow-y: auto; /* Добавил скролл для длинного списка */
+      padding-top: 50px;
     }
 
-    /* GRID BACKGROUND */
+    /* === 3D GRID BACKGROUND === */
     .tasks-bg-grid {
       position: absolute;
       inset: 0;
+      /* Более контрастная и заметная сетка с голубым оттенком */
       background-image:
-        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+        linear-gradient(rgba(100,150,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(100,150,255,0.08) 1px, transparent 1px);
       background-size: 34px 34px;
-      opacity: 0.2;
+      opacity: 0.35;
       pointer-events: none;
       z-index: -2;
+      /* Добавляем легкое свечение для сетки */
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
     }
 
-    /* CARD */
+    /* === CARD (Стекломорфизм) === */
     .tasks-card {
-      width: 92%;
-      padding: 55px 18px 60px;
+      width: 100%; /* Убрал ограничение ширины для лучшего скроллинга */
+      max-width: 450px;
+      padding: 30px 18px 40px; /* Уменьшил вертикальный padding */
       border-radius: 26px;
-      background: rgba(20,20,30,0.50);
-      backdrop-filter: blur(18px);
-      border: 1px solid rgba(255,255,255,0.06);
+      
+      /* Темный полупрозрачный фон + сильное размытие */
+      background: rgba(10,10,25,0.7);
+      backdrop-filter: blur(28px);
+      border: 1px solid rgba(255,255,255,0.1);
+      
       text-align: center;
       position: relative;
       overflow: hidden;
       animation: cardFadeIn .55s ease forwards;
-      box-shadow: 0 0 35px rgba(100,120,255,0.18);
+      
+      /* Премиальное свечение карточки */
+      box-shadow: 
+        0 0 50px rgba(100,150,255,0.25), /* Внешнее неоновое свечение */
+        inset 0 0 15px rgba(255,255,255,0.05); /* Внутренний блик */
     }
 
     @keyframes cardFadeIn {
-      from { opacity: 0; transform: translateY(12px) scale(0.97); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* 3D ICON */
+    /* === 3D ICON === */
     .tasks-icon-wrapper {
       width: 86px;
       height: 86px;
       border-radius: 26px;
-      background: rgba(255,255,255,0.05);
+      
+      /* Глянцевый, приподнятый фон */
+      background: rgba(255,255,255,0.1);
       backdrop-filter: blur(14px);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 20px;
       position: relative;
-      box-shadow: inset 0 0 25px rgba(120,150,255,0.2), 0 0 20px rgba(120,150,255,0.25);
+      
+      /* Голографическое свечение и тень */
+      box-shadow: 
+        inset 0 0 25px rgba(135,206,250,0.3), /* Внутренний голубой свет */
+        0 0 25px rgba(135,206,250,0.4); /* Внешнее голубое свечение */
+        
       animation: iconPop .55s ease;
     }
 
@@ -142,74 +152,95 @@ function TasksCSS() {
     }
 
     .tasks-icon {
-      filter: drop-shadow(0 0 10px rgba(150,170,255,0.8));
+      /* Интенсивное свечение иконки */
+      filter: drop-shadow(0 0 12px rgba(135,206,250,1)); 
     }
 
     /* Glow behind icon */
     .tasks-icon-glow {
       position: absolute;
-      width: 120px;
-      height: 120px;
+      width: 140px;
+      height: 140px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(120,150,255,0.4), transparent 70%);
-      filter: blur(40px);
+      /* Голубое неоновое свечение */
+      background: radial-gradient(circle, rgba(135,206,250,0.6), transparent 70%);
+      filter: blur(45px);
       z-index: -1;
+      animation: glowPulse 4s infinite alternate ease-in-out;
     }
 
-    /* TITLE */
+    @keyframes glowPulse {
+      from { transform: scale(0.95); opacity: 0.5; }
+      to { transform: scale(1.05); opacity: 0.7; }
+    }
+
+    /* === TITLE === */
     .tasks-title {
-      font-size: 26px;
-      font-weight: 700;
+      font-size: 24px;
+      font-weight: 800;
       color: #fff;
       margin-bottom: 6px;
-      text-shadow: 0 0 10px rgba(150,180,255,0.7);
+      /* Голубое неоновое свечение */
+      text-shadow: 0 0 12px rgba(135,206,250,0.8), 0 0 2px rgba(255,255,255,0.5);
     }
 
     .tasks-subtitle {
       font-size: 15px;
       color: #aaa;
-      margin-bottom: 26px;
+      margin-bottom: 30px; /* Увеличенный отступ */
     }
 
-    /* SKELETON LIST */
+    /* === SKELETON LIST (Премиальная анимация загрузки) === */
     .tasks-skeleton-list {
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
       margin-top: 10px;
+      width: 100%;
     }
 
     .task-skeleton {
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 14px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.06);
-      backdrop-filter: blur(12px);
+      padding: 16px;
+      
+      /* Более темный и прозрачный фон */
+      background: rgba(255,255,255,0.03);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+      
       position: relative;
       overflow: hidden;
+      
+      /* Тонкая неоновая рамка для скелета */
+      box-shadow: 0 0 5px rgba(135,206,250,0.1);
     }
 
+    /* Анимация "блеска" */
     .task-skeleton::after {
       content: "";
       position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-      animation: skeletonShine 1.8s infinite;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 50%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent); /* Более яркий блик */
+      animation: skeletonShine 1.5s infinite; /* Более быстрое мерцание */
     }
 
     @keyframes skeletonShine {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+      0% { transform: translateX(-150%); }
+      100% { transform: translateX(300%); }
     }
 
     .task-skeleton-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.08);
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.1);
+      min-width: 44px;
     }
 
     .task-skeleton-lines {
@@ -219,28 +250,31 @@ function TasksCSS() {
     .task-skeleton-line {
       height: 10px;
       border-radius: 6px;
-      background: rgba(255,255,255,0.12);
-      margin-bottom: 6px;
+      background: rgba(255,255,255,0.15); /* Чуть светлее */
+      margin-bottom: 7px;
     }
 
-    .task-skeleton-line.short { width: 40%; }
-    .task-skeleton-line.long { width: 70%; }
+    .task-skeleton-line.short { width: 45%; }
+    .task-skeleton-line.long { width: 75%; }
 
-    /* PULSE LINE */
+    /* === PULSE LINE === */
     .tasks-progress-pulse {
       position: absolute;
       bottom: 0;
       left: 0;
       height: 4px;
       width: 100%;
-      background: linear-gradient(90deg, transparent, #8cb3ff, transparent);
-      animation: progressPulse 2s infinite ease;
-      opacity: 0.4;
+      /* Яркое голубое свечение */
+      background: linear-gradient(90deg, transparent, #87cefa, transparent);
+      animation: progressPulse 2s infinite ease-in-out;
+      opacity: 0.6;
+      filter: blur(2px);
     }
 
     @keyframes progressPulse {
       0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+      50% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
     }
 
     `}</style>

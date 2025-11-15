@@ -6,6 +6,7 @@ import NameModal from "./NameModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 /* ------------------ SAFE TELEGRAM API ------------------ */
+// Безопасный доступ к API Telegram WebApp
 const tg = window.Telegram?.WebApp ?? {
   ready: () => {},
   expand: () => {},
@@ -19,6 +20,7 @@ const tg = window.Telegram?.WebApp ?? {
 tg.ready();
 tg.expand();
 tg.disableVerticalSwipes();
+// Установка прозрачного фона и заголовка для контроля через CSS
 tg.setBackgroundColor("#00000000");
 tg.setHeaderColor("transparent");
 
@@ -69,6 +71,7 @@ export default function App() {
         setEnergy(data.energy_current);
         setNeedsName(false);
       } else if (error && error.code === "PGRST116") {
+        // Ошибка PGRST116 означает "Нет строк", то есть новый игрок
         setNeedsName(true);
       }
 
@@ -110,6 +113,7 @@ export default function App() {
 
   /* ------------------ ENERGY REGEN ------------------ */
   useEffect(() => {
+    // Восстановление 1 энергии в секунду
     const interval = setInterval(() => {
       setEnergy((e) => (e < MAX_ENERGY ? e + 1 : e));
     }, 1000);
@@ -118,6 +122,7 @@ export default function App() {
   }, []);
 
   /* ------------------ BLOCK ZOOM ------------------ */
+  // Запрет масштабирования для ощущения нативного приложения
   useEffect(() => {
     const handleWheel = (e) => e.ctrlKey && e.preventDefault();
     const handleKey = (e) =>
@@ -138,6 +143,7 @@ export default function App() {
   }, []);
 
   /* ------------------ SAVE DATA w/ DEBOUNCE ------------------ */
+  // Сохранение данных с задержкой, чтобы не бомбить Supabase при каждом тапе
   useEffect(() => {
     if (!user || tapsSinceLastSave === 0) return;
 
@@ -151,10 +157,10 @@ export default function App() {
           energy_current: energy,
         })
         .eq("id", user.id);
-    }, 800);
+    }, 800); // 800мс задержка
 
     return () => clearTimeout(timeout);
-  }, [tapsSinceLastSave]);
+  }, [tapsSinceLastSave, points, energy]);
 
   /* ------------------ TAP HANDLER ------------------ */
   const handleTap = () => {
@@ -168,6 +174,8 @@ export default function App() {
   };
 
   /* ------------------ UI STATES ------------------ */
+
+  // Состояние загрузки
   if (loading || !user)
     return (
       <NeonBackground>
@@ -175,6 +183,7 @@ export default function App() {
       </NeonBackground>
     );
 
+  // Состояние ввода имени
   if (needsName)
     return (
       <NeonBackground>
@@ -182,7 +191,7 @@ export default function App() {
       </NeonBackground>
     );
 
-  /* ------------------ MAIN VIEW ------------------ */
+  /* ------------------ MAIN VIEW RENDERER ------------------ */
   const renderView = () => {
     return (
       <AnimatePresence mode="wait">
@@ -209,9 +218,10 @@ export default function App() {
     );
   };
 
+  /* ------------------ FINAL RENDER ------------------ */
   return (
     <NeonBackground>
-      {/* TOP BAR */}
+      {/* TOP BAR: Header & Title */}
       <motion.div
         className="top-bar"
         initial={{ opacity: 0, y: -20 }}
@@ -219,13 +229,14 @@ export default function App() {
       >
         <motion.div
           className="top-title"
+          // Эффект "пульсирующего" неонового свечения
           animate={{ opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 4, repeat: Infinity }}
         >
-          {activeView === "tapper" ? "Кликер" : "Задания"}
+          {activeView === "tapper" ? "⚡️ ТАПАТЬ" : "📋 ЗАДАНИЯ"}
         </motion.div>
 
-        {/* Underline glow */}
+        {/* Свечение под заголовком */}
         <motion.div
           className="top-glow-line"
           animate={{ opacity: [0.15, 0.4, 0.15] }}
@@ -233,10 +244,10 @@ export default function App() {
         />
       </motion.div>
 
-      {/* CONTENT */}
+      {/* CONTENT AREA: Tapper / Tasks */}
       <div className="content-area">{renderView()}</div>
 
-      {/* BOTTOM TABS */}
+      {/* BOTTOM TABS: Navigation (Возвращено к двум кнопкам) */}
       <motion.div
         className="bottom-tabs"
         initial={{ opacity: 0, y: 20 }}
@@ -253,7 +264,7 @@ export default function App() {
           active={activeView === "tasks"}
           onClick={() => setActiveView("tasks")}
         >
-          📋 Задания
+          🚀 Задания
         </TabButton>
       </motion.div>
 
@@ -321,13 +332,13 @@ function CenterMessage({ text }) {
   );
 }
 
-/* ------------------ CSS ------------------ */
+/* ------------------ CSS (Обновленный Premium) ------------------ */
 
 function NeonCSS() {
   return (
     <style>
       {`
-      /* === GLOBAL SUPER PREMIUM BACKDROP === */
+      /* === GLOBAL PREMIUM BACKDROP === */
 
       .neon-wrapper {
         position: relative;
@@ -335,41 +346,40 @@ function NeonCSS() {
         height: 100vh;
         overflow: hidden;
 
-        /* ЕДИНЫЙ ПРЕМИУМ ФОН */
+        /* Глубокий, богатый, темный фон */
         background: radial-gradient(
           circle at 50% 20%,
-          rgba(80,80,90,0.25) 0%,
-          rgba(8,8,12,1) 45%,
+          rgba(100,100,120,0.3) 0%,
+          rgba(10,10,15,1) 45%,
           rgba(0,0,0,1) 100%
         );
 
         background-size: cover;
         background-repeat: no-repeat;
-
         color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
       }
 
       .neon-gradient {
         position: absolute;
         inset: 0;
 
-        /* гладкий 3D-эффект */
-        background: radial-gradient(
-          circle at 30% 20%,
-          rgba(40,40,60,0.20),
-          rgba(0,0,0,0.95)
+        /* Плавный 3D-эффект движения */
+        background: linear-gradient(
+          135deg,
+          rgba(50,50,80,0.25) 0%,
+          rgba(0,0,0,0.95) 50%
         );
-
-        background-size: 200% 200%;
+        background-size: 400% 400%;
         z-index: 0;
-        opacity: 0.6;
+        opacity: 0.7;
       }
 
       .neon-noise {
         position: absolute;
         inset: 0;
         background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-        opacity: 0.06;
+        opacity: 0.08;
         mix-blend-mode: overlay;
         z-index: 1;
       }
@@ -379,14 +389,14 @@ function NeonCSS() {
         inset: 0;
         background: radial-gradient(
           circle at center,
-          rgba(255,255,255,0.08),
-          transparent 70%
+          rgba(255,255,255,0.12),
+          transparent 75%
         );
         z-index: 2;
       }
 
 
-      /* === TOP BAR — БЕЗ ЧЁРНОГО ФОНА === */
+      /* === TOP BAR — СТЕКЛОМОРФИЗМ (GLASS) === */
 
       .top-bar {
         position: absolute;
@@ -396,11 +406,31 @@ function NeonCSS() {
         text-align: center;
         z-index: 10;
 
-        /* тонкое стекло без чёрной заливки */
-        background: rgba(255,255,255,0.02);
-        backdrop-filter: blur(22px);
+        /* Ключевые свойства стекломорфизма */
+        background: rgba(255,255,255,0.05); /* Легкий белый оттенок */
+        backdrop-filter: blur(28px); /* Сильное размытие */
 
-        border-bottom: 1px solid rgba(255,255,255,0.06);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      }
+      
+      .top-title {
+        font-size: 18px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        /* Яркое неоновое свечение заголовка */
+        text-shadow: 0 0 8px rgba(255,255,255,0.8), 0 0 16px rgba(135,206,250,0.6);
+      }
+      
+      .top-glow-line {
+        position: absolute;
+        bottom: 0;
+        left: 5%;
+        width: 90%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #87cefa, transparent);
+        filter: blur(2px);
       }
 
 
@@ -422,49 +452,55 @@ function NeonCSS() {
       }
 
 
-      /* === BOTTOM TABS — ПРОЗРАЧНОЕ СТЕКЛО === */
+      /* === BOTTOM TABS — СТЕКЛОМОРФИЗМ + НЕОН === */
 
       .bottom-tabs {
         position: absolute;
         bottom: 0;
         width: 100%;
-        padding: 14px 0;
+        padding: 12px 0;
         display: flex;
         justify-content: space-around;
         z-index: 10;
 
-        background: rgba(255,255,255,0.02);
-        backdrop-filter: blur(22px);
+        /* Ключевые свойства стекломорфизма */
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(28px);
 
-        border-top: 1px solid rgba(255,255,255,0.06);
+        border-top: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
       }
 
       .tab-btn {
-        background: rgba(255,255,255,0.03);
+        background: rgba(255,255,255,0.08);
         border: none;
-        padding: 10px 24px;
-        color: rgba(255,255,255,0.65);
-        font-size: 15px;
-        font-weight: 500;
-        border-radius: 14px;
-        backdrop-filter: blur(14px);
-        transition: 0.25s;
+        padding: 10px 18px;
+        color: rgba(255,255,255,0.7);
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: 0.2s ease-out;
+        cursor: pointer;
+        /* Эффект "плавающей" кнопки */
+        transform: translateY(0);
       }
 
       .tab-btn:hover {
-        background: rgba(255,255,255,0.07);
+        background: rgba(255,255,255,0.15);
       }
 
       .tab-btn.active {
         color: #fff;
-        background: rgba(255,255,255,0.12);
-        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.18);
+        border: 1px solid rgba(255,255,255,0.3);
 
+        /* Мощное неоновое свечение */
         box-shadow:
-          0 0 12px rgba(255,255,255,0.18),
-          inset 0 0 14px rgba(255,255,255,0.2);
+          0 0 10px rgba(135,206,250,0.5), /* Светлое голубое свечение */
+          0 0 20px rgba(255,255,255,0.15),
+          inset 0 0 16px rgba(255,255,255,0.25); /* Внутренний блик */
 
-        transform: translateY(-2px);
+        transform: translateY(-4px) scale(1.05); /* Приподнять активную кнопку */
       }
       `}
     </style>
