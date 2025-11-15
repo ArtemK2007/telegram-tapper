@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion'; // Импортируем motion для масштабирования
+import { motion } from 'framer-motion'; 
 
 export default function TasksScreen() {
   return (
@@ -8,11 +8,11 @@ export default function TasksScreen() {
       {/* Голографическая фоновая сетка */}
       <div className="tasks-bg-grid"></div>
       
-      {/* 💥 ОБЕРТКА С МАСШТАБОМ 0.75 💥 */}
+      {/* 💥 ОБЕРТКА С НОВЫМ МАСШТАБОМ 0.8625 💥 */}
       <motion.div 
         className="tasks-scaled-content"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 0.75, opacity: 1 }} // Масштабирование до 0.75
+        initial={{ scale: 0.75, opacity: 0 }}
+        animate={{ scale: 0.8625, opacity: 1 }} // Увеличенный масштаб
         transition={{ duration: 0.5, ease: 'easeOut' }}
       >
         <div className="tasks-card">
@@ -62,7 +62,7 @@ export default function TasksScreen() {
           <div className="tasks-progress-pulse" />
         </div>
       </motion.div>
-      {/* 💥 КОНЕЦ ОБЕРТКИ 💥 */}
+      {/* КОНЕЦ ОБЕРТКИ */}
 
       <TasksCSS />
     </div>
@@ -130,7 +130,6 @@ function TasksCSS() {
       text-align: center;
       position: relative;
       overflow: hidden;
-      /* Убрали анимацию cardFadeIn, т.к. ее заменила motion.div */
       
       /* Премиальное свечение карточки */
       box-shadow: 
@@ -138,7 +137,6 @@ function TasksCSS() {
         inset 0 0 15px rgba(255,255,255,0.05); 
     }
 
-    /* Удалили @keyframes cardFadeIn */
 
     /* === 3D ICON === */
     .tasks-icon-wrapper {
