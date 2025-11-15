@@ -1,0 +1,117 @@
+/* ----- Overlay ----- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+}
+
+/* ----- Modal ----- */
+.name-modal {
+  width: 85%;
+  max-width: 380px;
+  padding: 32px;
+  border-radius: 22px;
+  text-align: center;
+  animation: fadeInUp 0.45s ease;
+}
+
+.neon-card {
+  background: rgba(20, 20, 30, 0.55);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 255, 255, 0.25);
+  box-shadow:
+    0 0 20px rgba(0, 255, 255, 0.25),
+    inset 0 0 25px rgba(0, 255, 255, 0.05);
+}
+
+/* ----- Title & Text ----- */
+.modal-title {
+  font-size: 26px;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.neon-text {
+  color: #00ffff;
+  text-shadow: 0 0 7px #00eaff, 0 0 16px #00eaff;
+}
+
+.modal-text {
+  margin-bottom: 25px;
+  color: #e0e0e0;
+  opacity: 0.9;
+}
+
+/* ----- Input ----- */
+.name-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 17px;
+  outline: none;
+  margin-bottom: 22px;
+  color: white;
+}
+
+.neon-input {
+  border: 1px solid rgba(0, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 0 10px rgba(0, 255, 255, 0.15),
+    inset 0 0 12px rgba(0, 255, 255, 0.05);
+}
+
+/* ----- Button ----- */
+.submit-button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  color: white;
+  transition: 0.2s;
+}
+
+.neon-button {
+  background: linear-gradient(135deg, #00ffff50, #00b7ff50);
+  border: 1px solid rgba(0, 255, 255, 0.45);
+  text-shadow: 0 0 8px #00eaff;
+
+  box-shadow:
+    0 0 18px rgba(0, 255, 255, 0.45),
+    inset 0 0 20px rgba(0, 255, 255, 0.25);
+}
+
+.neon-button:hover:not(:disabled) {
+  transform: scale(1.03);
+  box-shadow:
+    0 0 25px rgba(0, 255, 255, 0.65),
+    inset 0 0 25px rgba(0, 255, 255, 0.3);
+}
+
+.neon-button:active {
+  transform: scale(0.97);
+}
+
+.neon-button:disabled {
+  opacity: 0.7;
+}
+
+/* ----- Animations ----- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

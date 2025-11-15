@@ -1,248 +1,399 @@
-import React, { useState, useEffect } from 'react';
-// Импорт клиента Supabase и нового модального окна
-import { supabase } from './supabaseClient'; 
-import TapperScreen from './TapperScreen';
-import TasksScreen from './TasksScreen';
-import coinIconImage from './assets/coin.png'; 
-import NameModal from './NameModal'; // 👈 ИМПОРТ МОДАЛЬНОГО ОКНА
-import './App.css'; 
+import React, { useState, useEffect } from "react";
+import { supabase } from "./supabaseClient";
+import TapperScreen from "./TapperScreen";
+import TasksScreen from "./TasksScreen";
+import NameModal from "./NameModal";
+import { motion, AnimatePresence } from "framer-motion";
 
-function App() {
-  // 1. СОСТОЯНИЕ (State)
-  const [user, setUser] = useState(null); 
-  const [loading, setLoading] = useState(true); 
-  const [activeView, setActiveView] = useState('tapper'); 
-  
-  // Флаги для авторизации
-  const [needsName, setNeedsName] = useState(false); // 👈 ФЛАГ: Просит имя
-  
-  // [GAME STATE]
-  const [points, setPoints] = useState(0); 
+/* ------------------ SAFE TELEGRAM API ------------------ */
+const tg = window.Telegram?.WebApp ?? {
+  ready: () => {},
+  expand: () => {},
+  disableVerticalSwipes: () => {},
+  setHeaderColor: () => {},
+  setBackgroundColor: () => {},
+  colorScheme: "dark",
+  HapticFeedback: { impactOccurred: () => {} },
+};
+
+tg.ready();
+tg.expand();
+tg.disableVerticalSwipes();
+
+/* ------------------ MAIN APP ------------------ */
+
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const [activeView, setActiveView] = useState("tapper");
+
+  const [needsName, setNeedsName] = useState(false);
+
+  const [points, setPoints] = useState(0);
   const [energy, setEnergy] = useState(1000);
   const MAX_ENERGY = 1000;
-  const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0); 
 
-  // 2. БЛОКИ USEEFFECT и ЛОГИКА
+  const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0);
 
-  // 2.1. АВТОРИЗАЦИЯ И ЗАГРУЗКА ДАННЫХ (Главный useEffect)
+  /* ------------------ AUTH + LOAD DATA ------------------ */
   useEffect(() => {
-    async function getAuth() {
-      // 1. Проверка существующей сессии (Supabase сам ищет токен в localStorage)
-      const { data: { user: existingUser } } = await supabase.auth.getUser();
+    async function authenticate() {
+      const { data: authData } = await supabase.auth.getUser();
 
-      if (existingUser) {
-        setUser(existingUser);
-        await loadPlayerData(existingUser.id);
+      if (authData?.user) {
+        setUser(authData.user);
+        loadPlayer(authData.user.id);
       } else {
-        // 2. Если сессии нет, создаем анонимного пользователя
-        const { data: { user: newUser } } = await supabase.auth.signInAnonymously();
-        if (newUser) {
-          setUser(newUser);
-          // Продолжаем логику в loadPlayerData, где проверим наличие записи в таблице players
-          await loadPlayerData(newUser.id);
+        const { data: newAuth } = await supabase.auth.signInAnonymously();
+        if (newAuth?.user) {
+          setUser(newAuth.user);
+          loadPlayer(newAuth.user.id);
         } else {
-          setLoading(false); 
+          setLoading(false);
         }
       }
     }
 
-    async function loadPlayerData(userId) {
-      // 3. Загрузка данных игрока из таблицы players
+    async function loadPlayer(id) {
       const { data, error } = await supabase
-        .from('players')
-        .select(`username, points, energy_current`)
-        .eq('id', userId)
-        .single(); 
+        .from("players")
+        .select("username, points, energy_current")
+        .eq("id", id)
+        .single();
 
       if (data) {
         setPoints(data.points);
         setEnergy(data.energy_current);
-        setNeedsName(false); // Данные найдены, модал не нужен
-      } else if (error && error.code === 'PGRST116') { 
-        // 🛑 Ошибка 'PGRST116' (404 Not Found) - Игрока нет в таблице players. Просим имя.
-        setNeedsName(true); 
+        setNeedsName(false);
+      } else if (error && error.code === "PGRST116") {
+        setNeedsName(true);
       }
+
       setLoading(false);
     }
-    
-    // Запускаем процесс авторизации при старте
-    getAuth(); 
-  }, []); 
 
-  // 2.2. Функция, которая вызывается после ввода имени
+    authenticate();
+  }, []);
+
+  /* ------------------ NAME SUBMIT ------------------ */
   async function handleNameSubmit(username) {
-      if (!user) return; 
-      setLoading(true);
+    if (!user) return;
 
-      // 🛑 1. ПРОВЕРКА НА УНИКАЛЬНОСТЬ
-      const { data, error: selectError } = await supabase
-          .from('players')
-          .select('username') // Нам достаточно запросить имя
-          .eq('username', username); // Ищем совпадения
+    setLoading(true);
 
-      if (data && data.length > 0) {
-          // Имя найдено в базе!
-          alert(`Имя "${username}" уже занято! Выберите другое.`); 
-          setLoading(false);
-          return; // Останавливаем выполнение
-      }
-      
-      // 2. Если имя уникально, запускаем инициализацию и сохранение
-      await initializeNewPlayer(user.id, username);
-  }
+    const { data: exists } = await supabase
+      .from("players")
+      .select("username")
+      .eq("username", username);
 
-  // 2.3. Функция инициализации НОВОГО игрока
-  async function initializeNewPlayer(userId, username) {
-      const { error } = await supabase
-          .from('players')
-          .insert({ 
-              id: userId, 
-              username: username, // ✅ ИСПОЛЬЗУЕМ ВВЕДЕННОЕ ИМЯ
-              points: 0, 
-              energy_current: 1000
-          });
-      
-      if (!error) {
-          setPoints(0);
-          setEnergy(1000);
-          setNeedsName(false); // Скрываем модальное окно
-      }
+    if (exists?.length > 0) {
+      alert("Имя уже занято.");
       setLoading(false);
+      return;
+    }
+
+    await supabase.from("players").insert({
+      id: user.id,
+      username,
+      points: 0,
+      energy_current: 1000,
+    });
+
+    setPoints(0);
+    setEnergy(1000);
+    setNeedsName(false);
+    setLoading(false);
   }
 
-  // 2.4. Регенерация энергии
+  /* ------------------ ENERGY REGEN ------------------ */
   useEffect(() => {
     const interval = setInterval(() => {
-      setEnergy((prevEnergy) => (prevEnergy < MAX_ENERGY ? prevEnergy + 1 : prevEnergy));
-    }, 1000); 
-    return () => clearInterval(interval); 
+      setEnergy((e) => (e < MAX_ENERGY ? e + 1 : e));
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  // 2.5. Блокировка масштабирования 
+  /* ------------------ BLOCK ZOOM ------------------ */
   useEffect(() => {
-    const handleWheel = (e) => { if (e.ctrlKey) e.preventDefault(); };
-    const handleKeydown = (e) => { 
-      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=') ) e.preventDefault(); 
-    };
-    const handleTouchMove = (e) => { if (e.touches.length > 1) e.preventDefault(); };
+    const handleWheel = (e) => e.ctrlKey && e.preventDefault();
+    const handleKey = (e) =>
+      (e.ctrlKey || e.metaKey) &&
+      ["+", "-", "="].includes(e.key) &&
+      e.preventDefault();
+    const handleTouch = (e) => e.touches.length > 1 && e.preventDefault();
 
-    document.addEventListener('wheel', handleWheel, { passive: false });
-    document.addEventListener('keydown', handleKeydown);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener("wheel", handleWheel, { passive: false });
+    document.addEventListener("keydown", handleKey);
+    document.addEventListener("touchmove", handleTouch, { passive: false });
 
     return () => {
-      document.removeEventListener('wheel', handleWheel);
-      document.removeEventListener('keydown', handleKeydown);
-      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener("wheel", handleWheel);
+      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("touchmove", handleTouch);
     };
   }, []);
 
-  // 2.6. Сохранение данных в базу данных с Debounce
+  /* ------------------ SAVE DATA w/ DEBOUNCE ------------------ */
   useEffect(() => {
-    // ВЫХОД: Если буфер пуст ИЛИ user не загружен
-    if (tapsSinceLastSave === 0 || !user || loading) return;
+    if (!user || tapsSinceLastSave === 0) return;
 
-    const saveToDatabase = async () => {
-      const finalPoints = points; 
-      const finalEnergy = energy;
+    const timeout = setTimeout(async () => {
+      setTapsSinceLastSave(0);
 
-      setTapsSinceLastSave(0); // Сбрасываем буфер
-
-      console.log(`Отправка в БД: ${finalPoints} pts, ${finalEnergy} energy`);
-
-      // 🛑 Отправляем данные на сервер
-      const { error } = await supabase
-        .from('players')
-        .update({ 
-          points: finalPoints,
-          energy_current: finalEnergy 
+      await supabase
+        .from("players")
+        .update({
+          points: points,
+          energy_current: energy,
         })
-        .eq('id', user.id); 
+        .eq("id", user.id);
+    }, 800);
 
-      if (error) {
-        console.error('Ошибка сохранения:', error);
-      }
-    };
-    
-    const timeoutId = setTimeout(saveToDatabase, 800); // 800 мс Debounce
+    return () => clearTimeout(timeout);
+  }, [tapsSinceLastSave]);
 
-    return () => clearTimeout(timeoutId);
-
-  }, [tapsSinceLastSave, user]); // Следим только за тапами и пользователем
-
-  // 3. Функция клика (handleTap)
+  /* ------------------ TAP HANDLER ------------------ */
   const handleTap = () => {
     if (energy <= 0) return;
-    
-    setPoints((prev) => prev + 1);
-    setEnergy((prev) => prev - 1);
-    setTapsSinceLastSave((prev) => prev + 1); 
 
-    if (window.navigator.vibrate) window.navigator.vibrate(50);
+    setPoints((p) => p + 1);
+    setEnergy((e) => e - 1);
+    setTapsSinceLastSave((x) => x + 1);
+
+    tg.HapticFeedback.impactOccurred("medium");
   };
-  
-  // 4. ГЛАВНЫЙ РЕНДЕРИНГ (УСЛОВИЯ)
-  
-  // 4.1. ЭКРАН ЗАГРУЗКИ
-  if (loading || !user) {
-    return (
-      <div className="game-container app-shell" style={{justifyContent: 'center'}}>
-        <h1 style={{color: 'var(--color-accent-cyan)'}}>Загрузка данных...</h1>
-      </div>
-    );
-  }
 
-  // 4.2. ЭКРАН ВВОДА ИМЕНИ
-  if (needsName) {
-      return <NameModal onSubmit={handleNameSubmit} isLoading={loading} />;
-  }
-  
-  // 4.3. ФУНКЦИЯ РЕНДЕРИНГА ГЛАВНОГО КОНТЕНТА
+  /* ------------------ UI STATES ------------------ */
+  if (loading || !user)
+    return (
+      <NeonBackground>
+        <CenterMessage text="Загрузка..." />
+      </NeonBackground>
+    );
+
+  if (needsName)
+    return (
+      <NeonBackground>
+        <NameModal onSubmit={handleNameSubmit} isLoading={loading} />
+      </NeonBackground>
+    );
+
+  /* ------------------ MAIN VIEW ------------------ */
   const renderView = () => {
-    if (activeView === 'tapper') {
-      return (
-        <TapperScreen 
-          points={points} 
-          energy={energy} 
-          handleTap={handleTap} 
-          MAX_ENERGY={MAX_ENERGY} 
-        />
-      );
-    } else if (activeView === 'tasks') {
-      return <TasksScreen />;
+    switch (activeView) {
+      case "tapper":
+        return (
+          <TapperScreen
+            points={points}
+            energy={energy}
+            MAX_ENERGY={MAX_ENERGY}
+            handleTap={handleTap}
+          />
+        );
+
+      case "tasks":
+        return <TasksScreen />;
+
+      default:
+        return null;
     }
   };
 
-  // 5. ОСНОВНОЙ UI ИГРЫ
   return (
-    <div className="game-container app-shell">
-      
-      <div className="top-ui">
-          <div className="view-title">{activeView === 'tapper' ? 'Клик' : 'Задания'}</div>
-      </div>
+    <NeonBackground>
+      {/* TOP BAR */}
+      <motion.div
+        className="top-bar"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="top-title">
+          {activeView === "tapper" ? "Кликер" : "Задания"}
+        </div>
+      </motion.div>
 
-      <div className="content-area">
-        {renderView()}
-      </div>
+      {/* CONTENT */}
+      <div className="content-area">{renderView()}</div>
 
-      <div className="tab-bar">
-        <button 
-          className={`tab-button ${activeView === 'tapper' ? 'active' : ''}`}
-          onClick={() => setActiveView('tapper')}
+      {/* BOTTOM TABS */}
+      <motion.div
+        className="bottom-tabs"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <TabButton
+          active={activeView === "tapper"}
+          onClick={() => setActiveView("tapper")}
         >
-          <span role="img" aria-label="tap">👆</span>
-          Тапать
-        </button>
-        <button 
-          className={`tab-button ${activeView === 'tasks' ? 'active' : ''}`}
-          onClick={() => setActiveView('tasks')}
+          👆 Тапать
+        </TabButton>
+
+        <TabButton
+          active={activeView === "tasks"}
+          onClick={() => setActiveView("tasks")}
         >
-          <span role="img" aria-label="tasks">📋</span>
-          Задания
-        </button>
-      </div>
+          📋 Задания
+        </TabButton>
+      </motion.div>
+
+      <NeonCSS />
+    </NeonBackground>
+  );
+}
+
+/* ------------------ UI COMPONENTS ------------------ */
+
+function NeonBackground({ children }) {
+  return (
+    <div className="neon-wrapper">
+      <motion.div
+        className="neon-gradient"
+        animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
+        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+      />
+
+      <div className="neon-noise" />
+
+      {/* LIGHT GLOW */}
+      <motion.div
+        className="neon-glow"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.25 }}
+        transition={{ duration: 1 }}
+      />
+
+      {children}
     </div>
   );
 }
 
-export default App;
+function TabButton({ active, children, onClick }) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.9 }}
+      onClick={onClick}
+      className={`tab-btn ${active ? "active" : ""}`}
+    >
+      {children}
+    </motion.button>
+  );
+}
+
+function CenterMessage({ text }) {
+  return (
+    <motion.div
+      style={{
+        color: "white",
+        fontSize: 24,
+        fontWeight: 600,
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      {text}
+    </motion.div>
+  );
+}
+
+/* ------------------ CSS ------------------ */
+
+function NeonCSS() {
+  return (
+    <style>
+      {`
+      .neon-wrapper {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: #000;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+      }
+
+      .neon-gradient {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, #0a0a0c, #111116, #09090b, #1a1a22);
+        background-size: 300% 300%;
+        z-index: 0;
+      }
+
+      .neon-noise {
+        position: absolute;
+        inset: 0;
+        background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+        opacity: 0.15;
+        mix-blend-mode: overlay;
+        z-index: 1;
+      }
+
+      .neon-glow {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(150,170,255,0.2), transparent 70%);
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      .top-bar {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        padding: 16px 0;
+        text-align: center;
+        z-index: 10;
+      }
+
+      .top-title {
+        color: #fff;
+        font-size: 20px;
+        text-shadow: 0 0 10px rgba(150,170,255,0.8);
+      }
+
+      .content-area {
+        position: absolute;
+        top: 70px;
+        bottom: 80px;
+        left: 0;
+        right: 0;
+        z-index: 5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .bottom-tabs {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        padding: 14px 0;
+        display: flex;
+        justify-content: space-around;
+        z-index: 10;
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(25px);
+        border-top: 1px solid rgba(255,255,255,0.1);
+      }
+
+      .tab-btn {
+        background: transparent;
+        border: none;
+        padding: 10px 20px;
+        color: rgba(255,255,255,0.6);
+        font-size: 16px;
+        font-weight: 500;
+        border-radius: 12px;
+        transition: 0.25s;
+      }
+
+      .tab-btn.active {
+        color: white;
+        background: rgba(150,170,255,0.15);
+        box-shadow: 0 0 15px rgba(150,170,255,0.4), inset 0 0 10px rgba(150,170,255,0.25);
+      }
+      `}
+    </style>
+  );
+}
