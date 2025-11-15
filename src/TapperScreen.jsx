@@ -130,7 +130,6 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
 function TapperCSS() {
   return (
     <style>{`
-
 /* === UNIVERSAL PREMIUM TON / NOTCOIN STYLE === */
 
 body {

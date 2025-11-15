@@ -22,14 +22,6 @@ tg.disableVerticalSwipes();
 tg.setBackgroundColor("#00000000");
 tg.setHeaderColor("transparent");
 
-/* ------------------ VIEWPORT FIX (ANTI-BLACK-BARS) ------------------ */
-function fixViewportHeight() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty("--vh", `${vh}px`);
-}
-fixViewportHeight();
-window.addEventListener("resize", fixViewportHeight);
-
 /* ------------------ MAIN APP ------------------ */
 
 export default function App() {
@@ -233,6 +225,7 @@ export default function App() {
           {activeView === "tapper" ? "Кликер" : "Задания"}
         </motion.div>
 
+        {/* Underline glow */}
         <motion.div
           className="top-glow-line"
           animate={{ opacity: [0.15, 0.4, 0.15] }}
@@ -274,18 +267,21 @@ export default function App() {
 function NeonBackground({ children }) {
   return (
     <div className="neon-wrapper">
+      {/* animated gradient */}
       <motion.div
         className="neon-gradient"
         animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
       />
 
+      {/* film grain */}
       <div className="neon-noise" />
 
+      {/* center glow */}
       <motion.div
         className="neon-glow"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.32 }}
+        animate={{ opacity: 0.28 }}
         transition={{ duration: 1 }}
       />
 
@@ -331,35 +327,24 @@ function NeonCSS() {
   return (
     <style>
       {`
-      :root {
-        --vh: 1vh;
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html, body, #root {
-        width: 100%;
-        height: calc(var(--vh) * 100);
-        overflow: hidden;
-        background: black;
-      }
+      /* === GLOBAL SUPER PREMIUM BACKDROP === */
 
       .neon-wrapper {
         position: relative;
-        width: 100%;
-        height: calc(var(--vh) * 100);
+        width: 100vw;
+        height: 100vh;
         overflow: hidden;
 
+        /* ЕДИНЫЙ ПРЕМИУМ ФОН */
         background: radial-gradient(
           circle at 50% 20%,
-          rgba(60,60,80,0.25),
-          rgba(10,10,15,1) 45%,
+          rgba(80,80,90,0.25) 0%,
+          rgba(8,8,12,1) 45%,
           rgba(0,0,0,1) 100%
         );
+
+        background-size: cover;
+        background-repeat: no-repeat;
 
         color: #fff;
       }
@@ -367,14 +352,17 @@ function NeonCSS() {
       .neon-gradient {
         position: absolute;
         inset: 0;
+
+        /* гладкий 3D-эффект */
         background: radial-gradient(
           circle at 30% 20%,
-          rgba(40,40,60,0.22),
-          rgba(0,0,0,0.9)
+          rgba(40,40,60,0.20),
+          rgba(0,0,0,0.95)
         );
+
         background-size: 200% 200%;
-        opacity: 0.6;
         z-index: 0;
+        opacity: 0.6;
       }
 
       .neon-noise {
@@ -391,11 +379,14 @@ function NeonCSS() {
         inset: 0;
         background: radial-gradient(
           circle at center,
-          rgba(255,255,255,0.1),
+          rgba(255,255,255,0.08),
           transparent 70%
         );
         z-index: 2;
       }
+
+
+      /* === TOP BAR — БЕЗ ЧЁРНОГО ФОНА === */
 
       .top-bar {
         position: absolute;
@@ -405,10 +396,15 @@ function NeonCSS() {
         text-align: center;
         z-index: 10;
 
+        /* тонкое стекло без чёрной заливки */
         background: rgba(255,255,255,0.02);
         backdrop-filter: blur(22px);
+
         border-bottom: 1px solid rgba(255,255,255,0.06);
       }
+
+
+      /* === CONTENT AREA — ПРОЗРАЧНАЯ === */
 
       .content-area {
         position: absolute;
@@ -416,12 +412,17 @@ function NeonCSS() {
         bottom: 90px;
         left: 0;
         right: 0;
+
         display: flex;
         justify-content: center;
         align-items: center;
         padding: 16px;
+
         z-index: 5;
       }
+
+
+      /* === BOTTOM TABS — ПРОЗРАЧНОЕ СТЕКЛО === */
 
       .bottom-tabs {
         position: absolute;
@@ -434,6 +435,7 @@ function NeonCSS() {
 
         background: rgba(255,255,255,0.02);
         backdrop-filter: blur(22px);
+
         border-top: 1px solid rgba(255,255,255,0.06);
       }
 
@@ -446,7 +448,7 @@ function NeonCSS() {
         font-weight: 500;
         border-radius: 14px;
         backdrop-filter: blur(14px);
-        transition: .25s;
+        transition: 0.25s;
       }
 
       .tab-btn:hover {
@@ -455,14 +457,16 @@ function NeonCSS() {
 
       .tab-btn.active {
         color: #fff;
-        background: rgba(255,255,255,0.14);
+        background: rgba(255,255,255,0.12);
         border: 1px solid rgba(255,255,255,0.18);
+
         box-shadow:
-          0 0 12px rgba(255,255,255,0.2),
+          0 0 12px rgba(255,255,255,0.18),
           inset 0 0 14px rgba(255,255,255,0.2);
+
         transform: translateY(-2px);
       }
-    `}
+      `}
     </style>
   );
 }
