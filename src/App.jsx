@@ -182,23 +182,29 @@ export default function App() {
 
   /* ------------------ MAIN VIEW ------------------ */
   const renderView = () => {
-    switch (activeView) {
-      case "tapper":
-        return (
-          <TapperScreen
-            points={points}
-            energy={energy}
-            MAX_ENERGY={MAX_ENERGY}
-            handleTap={handleTap}
-          />
-        );
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeView}
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -40 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          style={{ width: "100%", height: "100%" }}
+        >
+          {activeView === "tapper" && (
+            <TapperScreen
+              points={points}
+              energy={energy}
+              MAX_ENERGY={MAX_ENERGY}
+              handleTap={handleTap}
+            />
+          )}
 
-      case "tasks":
-        return <TasksScreen />;
-
-      default:
-        return null;
-    }
+          {activeView === "tasks" && <TasksScreen />}
+        </motion.div>
+      </AnimatePresence>
+    );
   };
 
   return (
@@ -209,9 +215,20 @@ export default function App() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="top-title">
+        <motion.div
+          className="top-title"
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 4, repeat: Infinity }}
+        >
           {activeView === "tapper" ? "Кликер" : "Задания"}
-        </div>
+        </motion.div>
+
+        {/* Underline glow */}
+        <motion.div
+          className="top-glow-line"
+          animate={{ opacity: [0.15, 0.4, 0.15] }}
+          transition={{ duration: 6, repeat: Infinity }}
+        />
       </motion.div>
 
       {/* CONTENT */}
@@ -248,19 +265,21 @@ export default function App() {
 function NeonBackground({ children }) {
   return (
     <div className="neon-wrapper">
+      {/* animated gradient */}
       <motion.div
         className="neon-gradient"
         animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
       />
 
+      {/* film grain */}
       <div className="neon-noise" />
 
-      {/* LIGHT GLOW */}
+      {/* center glow */}
       <motion.div
         className="neon-glow"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.25 }}
+        animate={{ opacity: 0.28 }}
         transition={{ duration: 1 }}
       />
 
@@ -272,7 +291,9 @@ function NeonBackground({ children }) {
 function TabButton({ active, children, onClick }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.9 }}
+      whileTap={{ scale: 0.85 }}
+      whileHover={{ scale: 1.05 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
       onClick={onClick}
       className={`tab-btn ${active ? "active" : ""}`}
     >
@@ -286,8 +307,9 @@ function CenterMessage({ text }) {
     <motion.div
       style={{
         color: "white",
-        fontSize: 24,
+        fontSize: 26,
         fontWeight: 600,
+        textShadow: "0 0 12px rgba(255,255,255,0.3)",
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -303,35 +325,25 @@ function NeonCSS() {
   return (
     <style>
       {`
-      /* === PREMIUM NOTCOIN BLACK THEME === */
+      /* === PREMIUM VISION PRO × NOTCOIN STYLE === */
 
       .neon-wrapper {
         position: relative;
         width: 100vw;
         height: 100vh;
         overflow: hidden;
-        background: #050506;
+        background: #000;
         color: #fff;
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', Inter, sans-serif;
       }
 
-      /* Smooth royal gradient */
       .neon-gradient {
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at 30% 20%, #141418 0%, #050506 70%);
+        background: radial-gradient(circle at 30% 20%, #101018 0%, #000 70%);
         background-size: 200% 200%;
-        animation: gradientShift 16s ease-in-out infinite;
         z-index: 0;
       }
 
-      @keyframes gradientShift {
-        0% { background-position: 0% 0%; }
-        50% { background-position: 100% 100%; }
-        100% { background-position: 0% 0%; }
-      }
-
-      /* Very soft grain (premium, subtle) */
       .neon-noise {
         position: absolute;
         inset: 0;
@@ -341,12 +353,10 @@ function NeonCSS() {
         z-index: 1;
       }
 
-      /* internal glow */
       .neon-glow {
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at center, rgba(255,255,255,0.09), transparent 60%);
-        opacity: 0.1;
+        background: radial-gradient(circle at center, rgba(255,255,255,0.09), transparent 70%);
         z-index: 2;
       }
 
@@ -360,22 +370,35 @@ function NeonCSS() {
         text-align: center;
         z-index: 10;
 
-        background: rgba(15,15,20,0.45);
-        backdrop-filter: blur(18px);
+        background: rgba(5,5,10,0.45);
+        backdrop-filter: blur(20px);
 
         border-bottom: 1px solid rgba(255,255,255,0.05);
-
         box-shadow:
-          0 2px 12px rgba(0,0,0,0.6),
+          0 2px 12px rgba(0,0,0,0.7),
           inset 0 -1px 0 rgba(255,255,255,0.05);
       }
 
       .top-title {
         letter-spacing: 0.3px;
-        font-size: 19px;
+        font-size: 20px;
         font-weight: 600;
-        color: #f4f4f5;
-        text-shadow: 0 0 4px rgba(255,255,255,0.25);
+        color: #f8f8f9;
+        text-shadow: 0 0 6px rgba(255,255,255,0.25);
+      }
+
+      .top-glow-line {
+        width: 60%;
+        height: 2px;
+        margin: 6px auto 0 auto;
+        border-radius: 100px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255,255,255,0.4),
+          transparent
+        );
+        filter: blur(4px);
       }
 
       /* === CONTENT AREA === */
@@ -395,51 +418,52 @@ function NeonCSS() {
         z-index: 5;
       }
 
-      /* === BOTTOM TABS (Notcoin-like) === */
+      /* === BOTTOM TABS === */
 
       .bottom-tabs {
         position: absolute;
         bottom: 0;
         width: 100%;
-        padding: 10px 0;
+        padding: 14px 0;
         display: flex;
         justify-content: space-around;
         z-index: 10;
 
-        background: rgba(15,15,20,0.45);
-        backdrop-filter: blur(25px);
+        background: rgba(5,5,10,0.5);
+        backdrop-filter: blur(26px);
 
         border-top: 1px solid rgba(255,255,255,0.05);
+
         box-shadow:
-          0 -4px 16px rgba(0,0,0,0.45),
+          0 -4px 16px rgba(0,0,0,0.55),
           inset 0 1px 0 rgba(255,255,255,0.05);
       }
 
       .tab-btn {
-        background: rgba(255,255,255,0.03);
+        background: rgba(255,255,255,0.035);
         border: none;
         padding: 10px 24px;
-        color: rgba(255,255,255,0.6);
+        color: rgba(255,255,255,0.65);
         font-size: 15px;
         font-weight: 500;
         border-radius: 14px;
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(14px);
         transition: 0.25s;
-        box-shadow: inset 0 0 0 0 rgba(255,255,255,0.05);
+        box-shadow: inset 0 0 0 0 rgba(255,255,255,0.08);
       }
 
       .tab-btn:hover {
-        background: rgba(255,255,255,0.06);
+        background: rgba(255,255,255,0.07);
       }
 
       .tab-btn.active {
         color: #fff;
-        background: rgba(255,255,255,0.09);
-        border: 1px solid rgba(255,255,255,0.15);
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.18);
 
         box-shadow:
-          0 0 10px rgba(255,255,255,0.15),
-          inset 0 0 12px rgba(255,255,255,0.15);
+          0 0 12px rgba(255,255,255,0.18),
+          inset 0 0 14px rgba(255,255,255,0.2);
 
         transform: translateY(-2px);
       }
