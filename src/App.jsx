@@ -69,13 +69,11 @@ export default function App() {
         setPlayerName(data.username ?? "");
         setNeedsName(false);
 
-        // ветка по serial_id
         const sid = data.serial_id;
         if (sid < 100) setPlayerBranch("Tester");
         else if (sid <= 1500) setPlayerBranch("Old");
         else setPlayerBranch("Main");
       } else if (error && error.code === "PGRST116") {
-        // новый игрок
         setNeedsName(true);
       } else if (error) {
         console.error("loadPlayer error:", error);
@@ -93,7 +91,6 @@ export default function App() {
 
     setLoading(true);
 
-    // проверка уникальности ника
     const { data: exists, error: existsError } = await supabase
       .from("players")
       .select("username")
@@ -105,7 +102,6 @@ export default function App() {
       return;
     }
 
-    // создаём запись: tg_id = user.id, serial_id база создаёт сама
     const { data: inserted, error: insertError } = await supabase
       .from("players")
       .insert({
@@ -179,7 +175,7 @@ export default function App() {
           points: points,
           energy_current: energy,
         })
-        .eq("tg_id", user.id); // обновляем по tg_id
+        .eq("tg_id", user.id);
 
       if (error) {
         console.error("update player error:", error);
@@ -252,25 +248,30 @@ export default function App() {
           <div className="nc-avatar-circle">
             <span>{(playerName || "ARTR").slice(0, 2).toUpperCase()}</span>
           </div>
-          <div className="nc-project-info">
-            <div className="nc-project-name">
-              {playerName || "ARTR Network"}
-            </div>
-            <div className="nc-project-sub">
-              <span className="nc-project-tag">{playerBranch}</span>
-              <span className="nc-project-divider">•</span>
-              <span className="nc-project-tag-muted">Tap-to-Earn</span>
-            </div>
-          </div>
-        </div>
 
-        <div className="nc-balance-pill">
-          <div className="nc-balance-label">Баланс</div>
-          <div className="nc-balance-row">
-            <span className="nc-balance-value">
-              {points.toLocaleString("ru-RU")}
-            </span>
-            <span className="nc-balance-token">ARTR</span>
+          <div className="nc-header-main">
+            {/* БАЛАНС СВЕРХУ */}
+            <div className="nc-balance-pill nc-balance-inline">
+              <div className="nc-balance-label">Баланс</div>
+              <div className="nc-balance-row">
+                <span className="nc-balance-value">
+                  {points.toLocaleString("ru-RU")}
+                </span>
+                <span className="nc-balance-token">ARTR</span>
+              </div>
+            </div>
+
+            {/* ИМЯ + ВЕТКА СНИЗУ */}
+            <div className="nc-project-info">
+              <div className="nc-project-name">
+                {playerName || "ARTR Network"}
+              </div>
+              <div className="nc-project-sub">
+                <span className="nc-project-tag">{playerBranch}</span>
+                <span className="nc-project-divider">•</span>
+                <span className="nc-project-tag-muted">Tap-to-Earn</span>
+              </div>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -390,7 +391,7 @@ function NotcoinCSS() {
       .nc-header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
         padding: 8px 8px 4px;
         margin-bottom: 6px;
       }
@@ -415,6 +416,12 @@ function NotcoinCSS() {
         box-shadow:
           0 0 12px rgba(0, 0, 0, 0.9),
           0 0 0 1px rgba(255, 255, 255, 0.06);
+      }
+
+      .nc-header-main {
+        display: flex;
+        flex-direction: column;
+        gap: 6px; /* расстояние между балансом и блоком имени */
       }
 
       .nc-project-info {
@@ -448,12 +455,16 @@ function NotcoinCSS() {
       }
 
       .nc-balance-pill {
-        padding: 6px 12px;
+        padding: 4px 10px;
         border-radius: 999px;
         background: rgba(10, 12, 22, 0.96);
         border: 1px solid rgba(255,255,255,0.08);
         box-shadow: 0 10px 24px rgba(0,0,0,0.9);
-        min-width: 150px;
+        min-width: 0;
+      }
+
+      .nc-balance-inline {
+        align-self: flex-start;
       }
 
       .nc-balance-label {
