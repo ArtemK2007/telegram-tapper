@@ -66,15 +66,18 @@ function NameModalCSS() {
       .nm-overlay {
         position: fixed;
         inset: 0;
-        background: radial-gradient(circle at top, rgba(0,0,0,0.9), rgba(0,0,0,0.98));
+        /* убираем чёрный фон */
+        background: transparent;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         padding: 16px;
         z-index: 50;
+        pointer-events: none; /* чтобы клики шли только по карточке */
       }
 
       .nm-card {
+        pointer-events: auto; /* кликабельная только карточка */
         width: 100%;
         max-width: 420px;
         border-radius: 22px;
