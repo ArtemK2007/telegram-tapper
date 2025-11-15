@@ -27,16 +27,7 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      {/* BALANCE + ARTR */}
-      <div className="tap-dark-score">
-        <div className="tap-dark-score-label">Баланс</div>
-        <div className="tap-dark-score-row">
-          <span className="tap-dark-score-value">
-            {points.toLocaleString("ru-RU")}
-          </span>
-          <span className="tap-dark-score-token">ARTR</span>
-        </div>
-      </div>
+      {/* ТУТ БОЛЬШЕ НЕТ БАЛАНСА */}
 
       {/* COIN */}
       <div className="tap-dark-center">
@@ -107,54 +98,6 @@ function TapDarkCSS() {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-      }
-
-      /* SCORE */
-
-      .tap-dark-score {
-        align-self: center;
-        text-align: left;
-        padding: 8px 18px;
-        border-radius: 999px;
-        background: rgba(10, 12, 22, 0.95);
-        border: 1px solid rgba(255,255,255,0.06);
-        box-shadow: 0 10px 24px rgba(0,0,0,0.9);
-        min-width: 200px;
-      }
-
-      .tap-dark-score-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: rgba(255,255,255,0.45);
-        margin-bottom: 2px;
-      }
-
-      .tap-dark-score-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-      }
-
-      .tap-dark-score-value {
-        font-size: 24px;
-        font-weight: 800;
-        color: #ffffff;
-        letter-spacing: 0.03em;
-      }
-
-      .tap-dark-score-token {
-        padding: 3px 10px;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: #cfd7ff;
-        background: rgba(34, 40, 70, 0.9);
-        border: 1px solid rgba(143, 166, 255, 0.5);
-        box-shadow: 0 0 12px rgba(40, 80, 190, 0.45);
       }
 
       /* COIN */
@@ -243,8 +186,8 @@ function TapDarkCSS() {
       }
 
       .tap-dark-coin-img {
-        width: 52%;
-        height: 52%;
+        width: 88%;
+        height: 88%;
         object-fit: contain;
         position: relative;
         z-index: 1;
@@ -300,22 +243,6 @@ function TapDarkCSS() {
         border-radius: 999px;
         background: linear-gradient(90deg, #4a8cff 0%, #7cecff 100%);
         box-shadow: 0 0 16px rgba(90,150,255,0.6);
-      }
-
-      @media (max-width: 400px) {
-        .tap-dark-coin {
-          width: 165px;
-          height: 165px;
-        }
-
-        .tap-dark-coin-aura {
-          width: 180px;
-          height: 180px;
-        }
-
-        .tap-dark-score-value {
-          font-size: 22px;
-        }
       }
     `}</style>
   );

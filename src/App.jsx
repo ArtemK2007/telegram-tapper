@@ -210,20 +210,24 @@ export default function App() {
       >
         <div className="nc-header-left">
           <div className="nc-avatar-circle">
-            {/* Можно потом подставить первую букву ника */}
-            <span>⚡</span>
+            <span>AR</span>
           </div>
           <div className="nc-player-info">
             <div className="nc-player-name">
               {user?.user_metadata?.username || "Игрок"}
             </div>
-            <div className="nc-player-sub">Tap-to-earn</div>
+            <div className="nc-player-sub">ARTR Tap-to-Earn</div>
           </div>
         </div>
 
         <div className="nc-balance-pill">
-          <span className="nc-balance-label">Баланс</span>
-          <span className="nc-balance-value">{points.toLocaleString("ru-RU")}</span>
+          <div className="nc-balance-label">Баланс</div>
+          <div className="nc-balance-row">
+            <span className="nc-balance-value">
+              {points.toLocaleString("ru-RU")}
+            </span>
+            <span className="nc-balance-token">ARTR</span>
+          </div>
         </div>
       </motion.div>
 
@@ -240,16 +244,14 @@ export default function App() {
           active={activeView === "tapper"}
           onClick={() => setActiveView("tapper")}
         >
-          <span className="nc-tab-icon">👆</span>
-          <span className="nc-tab-label">Тапать</span>
+          <span className="nc-tab-label-strong">Tap</span>
         </TabButton>
 
         <TabButton
           active={activeView === "tasks"}
           onClick={() => setActiveView("tasks")}
         >
-          <span className="nc-tab-icon">🚀</span>
-          <span className="nc-tab-label">Задания</span>
+          <span className="nc-tab-label-strong">Tasks</span>
         </TabButton>
       </motion.div>
 
@@ -290,7 +292,7 @@ function CenterMessage({ text }) {
   );
 }
 
-/* ------------ CSS-IN-JS: НОТКОИН СТИЛЬ ------------ */
+/* ------------ CSS-IN-JS: ЧЁРНЫЙ ПРЕМИУМ ------------ */
 
 function NotcoinCSS() {
   return (
@@ -298,12 +300,12 @@ function NotcoinCSS() {
       :root {
         --nc-bg: #05070d;
         --nc-bg-soft: #0b0f1a;
-        --nc-accent: #ffd54a;
-        --nc-accent-soft: rgba(255, 213, 74, 0.18);
+        --nc-accent: #7cecff;
+        --nc-accent-soft: rgba(124, 236, 255, 0.16);
         --nc-border-soft: rgba(255, 255, 255, 0.06);
         --nc-text-main: #ffffff;
         --nc-text-muted: #8b93af;
-        --nc-tab-bg: rgba(18, 22, 35, 0.96);
+        --nc-tab-bg: rgba(7, 9, 18, 0.96);
         --nc-radius-lg: 20px;
         --nc-radius-pill: 999px;
       }
@@ -329,7 +331,7 @@ function NotcoinCSS() {
         background:
           radial-gradient(circle at 20% 0, rgba(106, 90, 205, 0.16), transparent 60%),
           radial-gradient(circle at 80% 0, rgba(0, 191, 255, 0.16), transparent 60%);
-        opacity: 0.8;
+        opacity: 0.7;
         pointer-events: none;
         z-index: 0;
       }
@@ -359,14 +361,16 @@ function NotcoinCSS() {
         width: 34px;
         height: 34px;
         border-radius: 50%;
-        background: radial-gradient(circle at 30% 20%, #ffffff, #ffd54a 55%, #b8860b 100%);
+        background: radial-gradient(circle at 30% 20%, #2f384a 0%, #111623 55%, #05070d 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #cfd7ff;
         box-shadow:
-          0 0 12px rgba(255, 213, 74, 0.5),
-          0 0 30px rgba(0, 0, 0, 0.9);
+          0 0 12px rgba(0, 0, 0, 0.9),
+          0 0 0 1px rgba(255, 255, 255, 0.06);
       }
 
       .nc-player-info {
@@ -386,26 +390,45 @@ function NotcoinCSS() {
       }
 
       .nc-balance-pill {
-        padding: 6px 10px;
-        border-radius: var(--nc-radius-pill);
-        background: linear-gradient(135deg, rgba(255, 213, 74, 0.16), rgba(255, 213, 74, 0.02));
-        border: 1px solid rgba(255, 213, 74, 0.55);
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        min-width: 96px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(10, 12, 22, 0.96);
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.9);
+        min-width: 150px;
       }
 
       .nc-balance-label {
         font-size: 10px;
         text-transform: uppercase;
-        color: var(--nc-text-muted);
-        letter-spacing: 0.04em;
+        letter-spacing: 0.14em;
+        color: rgba(255,255,255,0.45);
+        margin-bottom: 2px;
+      }
+
+      .nc-balance-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
       }
 
       .nc-balance-value {
-        font-size: 15px;
+        font-size: 18px;
         font-weight: 700;
+        color: #ffffff;
+      }
+
+      .nc-balance-token {
+        padding: 2px 10px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #cfd7ff;
+        background: rgba(34, 40, 70, 0.9);
+        border: 1px solid rgba(143, 166, 255, 0.5);
       }
 
       /* CONTENT */
@@ -425,11 +448,12 @@ function NotcoinCSS() {
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        padding: 8px 8px 4px;
+        padding: 10px 8px 8px;
+        margin-bottom: 6px;
         border-radius: 18px;
         background: var(--nc-tab-bg);
         border: 1px solid var(--nc-border-soft);
-        box-shadow: 0 -6px 26px rgba(0, 0, 0, 0.9);
+        box-shadow: 0 -4px 22px rgba(0, 0, 0, 0.9);
       }
 
       .nc-tab-btn {
@@ -437,31 +461,28 @@ function NotcoinCSS() {
         border: none;
         outline: none;
         border-radius: 999px;
-        padding: 6px 10px;
+        padding: 8px 10px;
         background: transparent;
         color: var(--nc-text-muted);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
         font-size: 12px;
         font-weight: 500;
         cursor: pointer;
         transition: background 0.18s ease-out, color 0.18s ease-out, transform 0.18s ease-out;
       }
 
-      .nc-tab-icon {
-        font-size: 16px;
-      }
-
-      .nc-tab-label {
-        font-size: 12px;
+      .nc-tab-label-strong {
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
 
       .nc-tab-btn.active {
-        background: rgba(255, 213, 74, 0.12);
+        background: rgba(124, 236, 255, 0.09);
         color: var(--nc-text-main);
-        box-shadow: 0 0 0 1px rgba(255, 213, 74, 0.4), 0 0 18px rgba(0, 0, 0, 0.9);
+        box-shadow: 0 0 0 1px rgba(124, 236, 255, 0.55), 0 0 18px rgba(0, 0, 0, 0.9);
       }
 
       .nc-center-message {
