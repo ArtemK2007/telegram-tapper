@@ -38,15 +38,13 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
         >
           <div className="tap-dark-coin-aura" />
           <div className="tap-dark-coin">
-            <div className="tap-dark-coin-inner">
-              <motion.img
-                src={tapImage}
-                alt="tap"
-                draggable="false"
-                className="tap-dark-coin-img"
-                animate={{ scale: energy <= 0 ? 0.97 : 1 }}
-              />
-            </div>
+            <motion.img
+              src={tapImage}
+              alt="tap"
+              draggable="false"
+              className="tap-dark-coin-img"
+              animate={{ scale: energy <= 0 ? 0.97 : 1 }}
+            />
           </div>
         </motion.button>
 
@@ -122,26 +120,28 @@ function TapDarkCSS() {
         opacity: 0.55;
       }
 
+      /* Аура вокруг круга (можно выключить, если надо совсем плоско) */
       .tap-dark-coin-aura {
         position: absolute;
         inset: 0;
         margin: auto;
-        width: 280px; /* увеличено */
-        height: 280px;
+        width: 320px;      /* было 280 → ×1.2 примерно */
+        height: 320px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(80,140,255,0.22), transparent 70%);
+        background: radial-gradient(circle, rgba(80,140,255,0.16), transparent 70%);
         filter: blur(24px);
         z-index: 0;
       }
 
+      /* Сам круг: одноцветный тёмный металл, увеличен ×1.2 */
       .tap-dark-coin {
-        width: 250px; /* увеличено ~1.4x */
-        height: 250px;
+        width: 300px;      /* было ~250 → ×1.2 */
+        height: 300px;
         border-radius: 50%;
-        background: radial-gradient(circle at 30% 20%, #2f384a 0%, #111623 55%, #05070d 100%);
+        background: #111623;  /* однотонный тёмный круг */
         box-shadow:
-          0 14px 36px rgba(0,0,0,0.95),
-          0 0 0 1px rgba(255,255,255,0.07);
+          0 16px 40px rgba(0,0,0,0.95),
+          0 0 0 1px rgba(255,255,255,0.06);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -149,40 +149,17 @@ function TapDarkCSS() {
         overflow: hidden;
       }
 
+      /* Тонкий ободок по краю */
       .tap-dark-coin::before {
         content: "";
         position: absolute;
-        inset: 16px;
+        inset: 10px;
         border-radius: 50%;
-        border: 1px solid rgba(255,255,255,0.14);
-        box-shadow: inset 0 0 16px rgba(0,0,0,0.9);
-        opacity: 0.95;
+        border: 1px solid rgba(255,255,255,0.10);
+        opacity: 0.9;
       }
 
-      .tap-dark-coin-inner {
-        width: 72%;
-        height: 72%;
-        border-radius: 50%;
-        background: radial-gradient(circle at 30% 20%, #3b4760 0%, #161b28 50%, #05070d 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .tap-dark-coin-inner::before {
-        content: "";
-        position: absolute;
-        inset: 12%;
-        border-radius: 50%;
-        border-top: 2px solid rgba(255,255,255,0.06);
-        border-left: 1px solid rgba(255,255,255,0.05);
-        border-right: 1px solid rgba(0,0,0,0.85);
-        border-bottom: 2px solid rgba(0,0,0,1);
-        opacity: 0.7;
-      }
-
+      /* Картинка растянута почти до краёв круга */
       .tap-dark-coin-img {
         width: 100%;
         height: 100%;
@@ -245,13 +222,13 @@ function TapDarkCSS() {
 
       @media (max-width: 400px) {
         .tap-dark-coin {
-          width: 210px;
-          height: 210px;
+          width: 260px;
+          height: 260px;
         }
 
         .tap-dark-coin-aura {
-          width: 240px;
-          height: 240px;
+          width: 280px;
+          height: 280px;
         }
       }
     `}</style>
