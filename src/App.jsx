@@ -212,11 +212,13 @@ export default function App() {
           <div className="nc-avatar-circle">
             <span>AR</span>
           </div>
-          <div className="nc-player-info">
-            <div className="nc-player-name">
-              {user?.user_metadata?.username || "Игрок"}
+          <div className="nc-project-info">
+            <div className="nc-project-name">ARTR Network</div>
+            <div className="nc-project-sub">
+              <span className="nc-project-tag">Main</span>
+              <span className="nc-project-divider">•</span>
+              <span className="nc-project-tag-muted">Tap-to-Earn</span>
             </div>
-            <div className="nc-player-sub">ARTR Tap-to-Earn</div>
           </div>
         </div>
 
@@ -373,19 +375,33 @@ function NotcoinCSS() {
           0 0 0 1px rgba(255, 255, 255, 0.06);
       }
 
-      .nc-player-info {
+      .nc-project-info {
         display: flex;
         flex-direction: column;
         gap: 2px;
       }
 
-      .nc-player-name {
+      .nc-project-name {
         font-size: 13px;
         font-weight: 600;
       }
 
-      .nc-player-sub {
+      .nc-project-sub {
+        display: flex;
+        align-items: center;
+        gap: 4px;
         font-size: 11px;
+      }
+
+      .nc-project-tag {
+        color: #cfd7ff;
+      }
+
+      .nc-project-tag-muted {
+        color: var(--nc-text-muted);
+      }
+
+      .nc-project-divider {
         color: var(--nc-text-muted);
       }
 

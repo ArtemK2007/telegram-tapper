@@ -27,8 +27,6 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      {/* ТУТ БОЛЬШЕ НЕТ БАЛАНСА */}
-
       {/* COIN */}
       <div className="tap-dark-center">
         <motion.button
@@ -128,21 +126,21 @@ function TapDarkCSS() {
         position: absolute;
         inset: 0;
         margin: auto;
-        width: 200px;
-        height: 200px;
+        width: 280px; /* увеличено */
+        height: 280px;
         border-radius: 50%;
         background: radial-gradient(circle, rgba(80,140,255,0.22), transparent 70%);
-        filter: blur(20px);
+        filter: blur(24px);
         z-index: 0;
       }
 
       .tap-dark-coin {
-        width: 180px;
-        height: 180px;
+        width: 250px; /* увеличено ~1.4x */
+        height: 250px;
         border-radius: 50%;
         background: radial-gradient(circle at 30% 20%, #2f384a 0%, #111623 55%, #05070d 100%);
         box-shadow:
-          0 10px 28px rgba(0,0,0,0.95),
+          0 14px 36px rgba(0,0,0,0.95),
           0 0 0 1px rgba(255,255,255,0.07);
         display: flex;
         align-items: center;
@@ -154,16 +152,16 @@ function TapDarkCSS() {
       .tap-dark-coin::before {
         content: "";
         position: absolute;
-        inset: 12px;
+        inset: 16px;
         border-radius: 50%;
         border: 1px solid rgba(255,255,255,0.14);
-        box-shadow: inset 0 0 14px rgba(0,0,0,0.9);
+        box-shadow: inset 0 0 16px rgba(0,0,0,0.9);
         opacity: 0.95;
       }
 
       .tap-dark-coin-inner {
-        width: 68%;
-        height: 68%;
+        width: 72%;
+        height: 72%;
         border-radius: 50%;
         background: radial-gradient(circle at 30% 20%, #3b4760 0%, #161b28 50%, #05070d 100%);
         display: flex;
@@ -186,12 +184,12 @@ function TapDarkCSS() {
       }
 
       .tap-dark-coin-img {
-        width: 105%;
-        height: 105%;
+        width: 92%;
+        height: 92%;
         object-fit: contain;
         position: relative;
         z-index: 1;
-        filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9));
+        filter: drop-shadow(0 4px 12px rgba(0,0,0,0.95));
       }
 
       /* FLOATERS */
@@ -243,6 +241,18 @@ function TapDarkCSS() {
         border-radius: 999px;
         background: linear-gradient(90deg, #4a8cff 0%, #7cecff 100%);
         box-shadow: 0 0 16px rgba(90,150,255,0.6);
+      }
+
+      @media (max-width: 400px) {
+        .tap-dark-coin {
+          width: 210px;
+          height: 210px;
+        }
+
+        .tap-dark-coin-aura {
+          width: 240px;
+          height: 240px;
+        }
       }
     `}</style>
   );
