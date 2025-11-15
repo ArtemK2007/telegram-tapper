@@ -36,7 +36,7 @@ export default function App() {
   const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0);
 
   const [playerName, setPlayerName] = useState("");
-  const [playerBranch, setPlayerBranch] = useState("Main"); // Tester / Old / Main
+  const [playerBranch] = useState("Main"); // пока просто Main, без вычислений
 
   useEffect(() => {
     async function authenticate() {
@@ -44,12 +44,12 @@ export default function App() {
 
       if (authData?.user) {
         setUser(authData.user);
-        loadPlayer(authData.user.id);
+        await loadPlayer(authData.user.id);
       } else {
         const { data: newAuth } = await supabase.auth.signInAnonymously();
         if (newAuth?.user) {
           setUser(newAuth.user);
-          loadPlayer(newAuth.user.id);
+          await loadPlayer(newAuth.user.id);
         } else {
           setLoading(false);
         }
@@ -57,54 +57,27 @@ export default function App() {
     }
 
     async function loadPlayer(id) {
-      // Получаем игрока с created_at, чтобы считать позицию
       const { data, error } = await supabase
         .from("players")
-        .select("username, points, energy_current, created_at")
+        .select("username, points, energy_current")
         .eq("id", id)
         .single();
 
       if (data) {
-        setPoints(data.points);
-        setEnergy(data.energy_current);
-        setPlayerName(data.username);
+        setPoints(data.points ?? 0);
+        setEnergy(data.energy_current ?? 1000);
+        setPlayerName(data.username ?? "");
         setNeedsName(false);
-
-        // пытаемся вычислить ветку по позиции
-        await calculateBranch(data.created_at);
       } else if (error && error.code === "PGRST116") {
+        // нет строки в players — новый игрок → просим ввести имя
+        setNeedsName(true);
+      } else if (error) {
+        // любая другая ошибка — тоже ведём через ввод имени, чтобы не ломать UX
+        console.error("loadPlayer error:", error);
         setNeedsName(true);
       }
 
       setLoading(false);
-    }
-
-    async function calculateBranch(createdAt) {
-      if (!createdAt) {
-        setPlayerBranch("Main");
-        return;
-      }
-
-      // Считаем, сколько игроков были созданы раньше или в тот же момент
-      const { data: countData, error: countError } = await supabase
-        .from("players")
-        .select("id, created_at")
-        .lte("created_at", createdAt);
-
-      if (countError || !countData) {
-        setPlayerBranch("Main");
-        return;
-      }
-
-      const position = countData.length;
-
-      if (position <= 100) {
-        setPlayerBranch("Tester");
-      } else if (position <= 1500) {
-        setPlayerBranch("Old");
-      } else {
-        setPlayerBranch("Main");
-      }
     }
 
     authenticate();
@@ -115,30 +88,29 @@ export default function App() {
 
     setLoading(true);
 
-    const { data: exists } = await supabase
+    // проверка уникальности ника
+    const { data: exists, error: existsError } = await supabase
       .from("players")
       .select("username")
       .eq("username", username);
 
-    if (exists?.length > 0) {
+    if (!existsError && exists?.length > 0) {
       alert("Имя уже занято.");
       setLoading(false);
       return;
     }
 
-    // создаём нового игрока
-    const { data: insertData, error: insertError } = await supabase
-      .from("players")
-      .insert({
-        id: user.id,
-        username,
-        points: 0,
-        energy_current: 1000,
-      })
-      .select("created_at")
-      .single();
+    // создаём запись игрока — без created_at, под твою схему
+    const { error: insertError } = await supabase.from("players").insert({
+      id: user.id,
+      username,
+      points: 0,
+      energy_current: 1000,
+      energy_max: 1000,
+    });
 
     if (insertError) {
+      console.error("insert player error:", insertError);
       setLoading(false);
       return;
     }
@@ -147,41 +119,10 @@ export default function App() {
     setEnergy(1000);
     setPlayerName(username);
     setNeedsName(false);
-
-    // сразу посчитаем ветку для только что созданного игрока
-    await calculateBranchSafe(insertData?.created_at);
-
     setLoading(false);
   }
 
-  // Обёртка, чтобы использовать calculateBranch вне useEffect
-  async function calculateBranchSafe(createdAt) {
-    if (!createdAt) {
-      setPlayerBranch("Main");
-      return;
-    }
-
-    const { data: countData, error: countError } = await supabase
-      .from("players")
-      .select("id, created_at")
-      .lte("created_at", createdAt);
-
-    if (countError || !countData) {
-      setPlayerBranch("Main");
-      return;
-    }
-
-    const position = countData.length;
-
-    if (position <= 100) {
-      setPlayerBranch("Tester");
-    } else if (position <= 1500) {
-      setPlayerBranch("Old");
-    } else {
-      setPlayerBranch("Main");
-    }
-  }
-
+  // реген энергии
   useEffect(() => {
     const interval = setInterval(() => {
       setEnergy((e) => (e < MAX_ENERGY ? e + 1 : e));
@@ -190,6 +131,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // блок зума / скролла
   useEffect(() => {
     const handleWheel = (e) => e.ctrlKey && e.preventDefault();
     const handleKey = (e) =>
@@ -209,19 +151,24 @@ export default function App() {
     };
   }, []);
 
+  // сохранение поинтов / энергии с дебаунсом
   useEffect(() => {
     if (!user || tapsSinceLastSave === 0) return;
 
     const timeout = setTimeout(async () => {
       setTapsSinceLastSave(0);
 
-      await supabase
+      const { error } = await supabase
         .from("players")
         .update({
           points: points,
           energy_current: energy,
         })
         .eq("id", user.id);
+
+      if (error) {
+        console.error("update player error:", error);
+      }
     }, 800);
 
     return () => clearTimeout(timeout);
@@ -237,6 +184,7 @@ export default function App() {
     tg.HapticFeedback.impactOccurred("medium");
   };
 
+  // состояния загрузки / онбординга
   if (loading || !user)
     return (
       <NotcoinBackground>
@@ -253,31 +201,29 @@ export default function App() {
       </NotcoinBackground>
     );
 
-  const renderView = () => {
-    return (
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeView}
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -24 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-          style={{ width: "100%", height: "100%" }}
-        >
-          {activeView === "tapper" && (
-            <TapperScreen
-              points={points}
-              energy={energy}
-              MAX_ENERGY={MAX_ENERGY}
-              handleTap={handleTap}
-            />
-          )}
+  const renderView = () => (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={activeView}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -24 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        style={{ width: "100%", height: "100%" }}
+      >
+        {activeView === "tapper" && (
+          <TapperScreen
+            points={points}
+            energy={energy}
+            MAX_ENERGY={MAX_ENERGY}
+            handleTap={handleTap}
+          />
+        )}
 
-          {activeView === "tasks" && <TasksScreen />}
-        </motion.div>
-      </AnimatePresence>
-    );
-  };
+        {activeView === "tasks" && <TasksScreen />}
+      </motion.div>
+    </AnimatePresence>
+  );
 
   return (
     <NotcoinBackground>
