@@ -34,7 +34,7 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
           <span className="tap-dark-balance-value">
             {points.toLocaleString("ru-RU")}
           </span>
-          <span className="tap-dark-balance-token">ARTR</span>
+          <span className="tap-dark-balance-token">#ARTR</span>
         </div>
       </div>
 
