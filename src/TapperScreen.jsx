@@ -186,8 +186,8 @@ function TapDarkCSS() {
       }
 
       .tap-dark-coin-img {
-        width: 88%;
-        height: 88%;
+        width: 105%;
+        height: 105%;
         object-fit: contain;
         position: relative;
         z-index: 1;
