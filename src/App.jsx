@@ -5,8 +5,6 @@ import TasksScreen from "./TasksScreen";
 import NameModal from "./NameModal";
 import { motion, AnimatePresence } from "framer-motion";
 
-/* ------------------ SAFE TELEGRAM API ------------------ */
-// Безопасный доступ к API Telegram WebApp
 const tg = window.Telegram?.WebApp ?? {
   ready: () => {},
   expand: () => {},
@@ -20,11 +18,8 @@ const tg = window.Telegram?.WebApp ?? {
 tg.ready();
 tg.expand();
 tg.disableVerticalSwipes();
-// Установка прозрачного фона и заголовка для контроля через CSS
-tg.setBackgroundColor("#00000000");
-tg.setHeaderColor("transparent");
-
-/* ------------------ MAIN APP ------------------ */
+tg.setBackgroundColor("#000000");
+tg.setHeaderColor("#000000");
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -40,7 +35,6 @@ export default function App() {
 
   const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0);
 
-  /* ------------------ AUTH + LOAD DATA ------------------ */
   useEffect(() => {
     async function authenticate() {
       const { data: authData } = await supabase.auth.getUser();
@@ -71,7 +65,6 @@ export default function App() {
         setEnergy(data.energy_current);
         setNeedsName(false);
       } else if (error && error.code === "PGRST116") {
-        // Ошибка PGRST116 означает "Нет строк", то есть новый игрок
         setNeedsName(true);
       }
 
@@ -81,7 +74,6 @@ export default function App() {
     authenticate();
   }, []);
 
-  /* ------------------ NAME SUBMIT ------------------ */
   async function handleNameSubmit(username) {
     if (!user) return;
 
@@ -111,9 +103,7 @@ export default function App() {
     setLoading(false);
   }
 
-  /* ------------------ ENERGY REGEN ------------------ */
   useEffect(() => {
-    // Восстановление 1 энергии в секунду
     const interval = setInterval(() => {
       setEnergy((e) => (e < MAX_ENERGY ? e + 1 : e));
     }, 1000);
@@ -121,8 +111,6 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  /* ------------------ BLOCK ZOOM ------------------ */
-  // Запрет масштабирования для ощущения нативного приложения
   useEffect(() => {
     const handleWheel = (e) => e.ctrlKey && e.preventDefault();
     const handleKey = (e) =>
@@ -142,8 +130,6 @@ export default function App() {
     };
   }, []);
 
-  /* ------------------ SAVE DATA w/ DEBOUNCE ------------------ */
-  // Сохранение данных с задержкой, чтобы не бомбить Supabase при каждом тапе
   useEffect(() => {
     if (!user || tapsSinceLastSave === 0) return;
 
@@ -157,12 +143,11 @@ export default function App() {
           energy_current: energy,
         })
         .eq("id", user.id);
-    }, 800); // 800мс задержка
+    }, 800);
 
     return () => clearTimeout(timeout);
-  }, [tapsSinceLastSave, points, energy]);
+  }, [tapsSinceLastSave, points, energy, user]);
 
-  /* ------------------ TAP HANDLER ------------------ */
   const handleTap = () => {
     if (energy <= 0) return;
 
@@ -173,34 +158,31 @@ export default function App() {
     tg.HapticFeedback.impactOccurred("medium");
   };
 
-  /* ------------------ UI STATES ------------------ */
-
-  // Состояние загрузки
   if (loading || !user)
     return (
-      <NeonBackground>
+      <NotcoinBackground>
         <CenterMessage text="Загрузка..." />
-      </NeonBackground>
+        <NotcoinCSS />
+      </NotcoinBackground>
     );
 
-  // Состояние ввода имени
   if (needsName)
     return (
-      <NeonBackground>
+      <NotcoinBackground>
         <NameModal onSubmit={handleNameSubmit} isLoading={loading} />
-      </NeonBackground>
+        <NotcoinCSS />
+      </NotcoinBackground>
     );
 
-  /* ------------------ MAIN VIEW RENDERER ------------------ */
   const renderView = () => {
     return (
       <AnimatePresence mode="wait">
         <motion.div
           key={activeView}
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -40 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
+          exit={{ opacity: 0, y: -24 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
           style={{ width: "100%", height: "100%" }}
         >
           {activeView === "tapper" && (
@@ -218,97 +200,78 @@ export default function App() {
     );
   };
 
-  /* ------------------ FINAL RENDER ------------------ */
   return (
-    <NeonBackground>
-      {/* TOP BAR: Header & Title */}
+    <NotcoinBackground>
+      {/* HEADER */}
       <motion.div
-        className="top-bar"
-        initial={{ opacity: 0, y: -20 }}
+        className="nc-header"
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <motion.div
-          className="top-title"
-          // Эффект "пульсирующего" неонового свечения
-          animate={{ opacity: [0.7, 1, 0.7] }}
-          transition={{ duration: 4, repeat: Infinity }}
-        >
-          {activeView === "tapper" ? "⚡️ ТАПАТЬ" : "📋 ЗАДАНИЯ"}
-        </motion.div>
+        <div className="nc-header-left">
+          <div className="nc-avatar-circle">
+            {/* Можно потом подставить первую букву ника */}
+            <span>⚡</span>
+          </div>
+          <div className="nc-player-info">
+            <div className="nc-player-name">
+              {user?.user_metadata?.username || "Игрок"}
+            </div>
+            <div className="nc-player-sub">Tap-to-earn</div>
+          </div>
+        </div>
 
-        {/* Свечение под заголовком */}
-        <motion.div
-          className="top-glow-line"
-          animate={{ opacity: [0.15, 0.4, 0.15] }}
-          transition={{ duration: 6, repeat: Infinity }}
-        />
+        <div className="nc-balance-pill">
+          <span className="nc-balance-label">Баланс</span>
+          <span className="nc-balance-value">{points.toLocaleString("ru-RU")}</span>
+        </div>
       </motion.div>
 
-      {/* CONTENT AREA: Tapper / Tasks */}
-      <div className="content-area">{renderView()}</div>
+      {/* CONTENT */}
+      <div className="nc-content">{renderView()}</div>
 
-      {/* BOTTOM TABS: Navigation (Возвращено к двум кнопкам) */}
+      {/* TABS */}
       <motion.div
-        className="bottom-tabs"
-        initial={{ opacity: 0, y: 20 }}
+        className="nc-tabs"
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <TabButton
           active={activeView === "tapper"}
           onClick={() => setActiveView("tapper")}
         >
-          👆 Тапать
+          <span className="nc-tab-icon">👆</span>
+          <span className="nc-tab-label">Тапать</span>
         </TabButton>
 
         <TabButton
           active={activeView === "tasks"}
           onClick={() => setActiveView("tasks")}
         >
-          🚀 Задания
+          <span className="nc-tab-icon">🚀</span>
+          <span className="nc-tab-label">Задания</span>
         </TabButton>
       </motion.div>
 
-      <NeonCSS />
-    </NeonBackground>
+      <NotcoinCSS />
+    </NotcoinBackground>
   );
 }
 
-/* ------------------ UI COMPONENTS ------------------ */
+/* ------------ UI WRAPPERS ------------ */
 
-function NeonBackground({ children }) {
-  return (
-    <div className="neon-wrapper">
-      {/* animated gradient */}
-      <motion.div
-        className="neon-gradient"
-        animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-      />
-
-      {/* film grain */}
-      <div className="neon-noise" />
-
-      {/* center glow */}
-      <motion.div
-        className="neon-glow"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.28 }}
-        transition={{ duration: 1 }}
-      />
-
-      {children}
-    </div>
-  );
+function NotcoinBackground({ children }) {
+  return <div className="nc-wrapper">{children}</div>;
 }
 
 function TabButton({ active, children, onClick }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.85 }}
-      whileHover={{ scale: 1.05 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      whileTap={{ scale: 0.9 }}
+      whileHover={{ scale: 1.03 }}
+      transition={{ type: "spring", stiffness: 260, damping: 18 }}
       onClick={onClick}
-      className={`tab-btn ${active ? "active" : ""}`}
+      className={`nc-tab-btn ${active ? "active" : ""}`}
     >
       {children}
     </motion.button>
@@ -318,12 +281,7 @@ function TabButton({ active, children, onClick }) {
 function CenterMessage({ text }) {
   return (
     <motion.div
-      style={{
-        color: "white",
-        fontSize: 26,
-        fontWeight: 600,
-        textShadow: "0 0 12px rgba(255,255,255,0.3)",
-      }}
+      className="nc-center-message"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -332,177 +290,190 @@ function CenterMessage({ text }) {
   );
 }
 
-/* ------------------ CSS (Обновленный Premium) ------------------ */
+/* ------------ CSS-IN-JS: НОТКОИН СТИЛЬ ------------ */
 
-function NeonCSS() {
+function NotcoinCSS() {
   return (
-    <style>
-      {`
-      /* === GLOBAL PREMIUM BACKDROP === */
+    <style>{`
+      :root {
+        --nc-bg: #05070d;
+        --nc-bg-soft: #0b0f1a;
+        --nc-accent: #ffd54a;
+        --nc-accent-soft: rgba(255, 213, 74, 0.18);
+        --nc-border-soft: rgba(255, 255, 255, 0.06);
+        --nc-text-main: #ffffff;
+        --nc-text-muted: #8b93af;
+        --nc-tab-bg: rgba(18, 22, 35, 0.96);
+        --nc-radius-lg: 20px;
+        --nc-radius-pill: 999px;
+      }
 
-      .neon-wrapper {
+      .nc-wrapper {
         position: relative;
         width: 100vw;
         height: 100vh;
         overflow: hidden;
-
-        /* Глубокий, богатый, темный фон */
-        background: radial-gradient(
-          circle at 50% 20%,
-          rgba(100,100,120,0.3) 0%,
-          rgba(10,10,15,1) 45%,
-          rgba(0,0,0,1) 100%
-        );
-
-        background-size: cover;
-        background-repeat: no-repeat;
-        color: #fff;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        background: radial-gradient(circle at top, #101424 0%, #05060a 55%, #000000 100%);
+        color: var(--nc-text-main);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom);
+        box-sizing: border-box;
       }
 
-      .neon-gradient {
+      .nc-wrapper::before {
+        content: "";
         position: absolute;
-        inset: 0;
-
-        /* Плавный 3D-эффект движения */
-        background: linear-gradient(
-          135deg,
-          rgba(50,50,80,0.25) 0%,
-          rgba(0,0,0,0.95) 50%
-        );
-        background-size: 400% 400%;
+        inset: -40%;
+        background:
+          radial-gradient(circle at 20% 0, rgba(106, 90, 205, 0.16), transparent 60%),
+          radial-gradient(circle at 80% 0, rgba(0, 191, 255, 0.16), transparent 60%);
+        opacity: 0.8;
+        pointer-events: none;
         z-index: 0;
-        opacity: 0.7;
       }
 
-      .neon-noise {
-        position: absolute;
-        inset: 0;
-        background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-        opacity: 0.08;
-        mix-blend-mode: overlay;
+      .nc-wrapper > * {
+        position: relative;
         z-index: 1;
       }
 
-      .neon-glow {
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(
-          circle at center,
-          rgba(255,255,255,0.12),
-          transparent 75%
-        );
-        z-index: 2;
+      /* HEADER */
+
+      .nc-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 8px 4px;
+        margin-bottom: 6px;
       }
 
-
-      /* === TOP BAR — СТЕКЛОМОРФИЗМ (GLASS) === */
-
-      .top-bar {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        padding: 18px 0;
-        text-align: center;
-        z-index: 10;
-
-        /* Ключевые свойства стекломорфизма */
-        background: rgba(255,255,255,0.05); /* Легкий белый оттенок */
-        backdrop-filter: blur(28px); /* Сильное размытие */
-
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      .nc-header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
-      
-      .top-title {
+
+      .nc-avatar-circle {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 20%, #ffffff, #ffd54a 55%, #b8860b 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 18px;
-        font-weight: 700;
+        box-shadow:
+          0 0 12px rgba(255, 213, 74, 0.5),
+          0 0 30px rgba(0, 0, 0, 0.9);
+      }
+
+      .nc-player-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .nc-player-name {
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .nc-player-sub {
+        font-size: 11px;
+        color: var(--nc-text-muted);
+      }
+
+      .nc-balance-pill {
+        padding: 6px 10px;
+        border-radius: var(--nc-radius-pill);
+        background: linear-gradient(135deg, rgba(255, 213, 74, 0.16), rgba(255, 213, 74, 0.02));
+        border: 1px solid rgba(255, 213, 74, 0.55);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        min-width: 96px;
+      }
+
+      .nc-balance-label {
+        font-size: 10px;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        /* Яркое неоновое свечение заголовка */
-        text-shadow: 0 0 8px rgba(255,255,255,0.8), 0 0 16px rgba(135,206,250,0.6);
-      }
-      
-      .top-glow-line {
-        position: absolute;
-        bottom: 0;
-        left: 5%;
-        width: 90%;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #87cefa, transparent);
-        filter: blur(2px);
+        color: var(--nc-text-muted);
+        letter-spacing: 0.04em;
       }
 
+      .nc-balance-value {
+        font-size: 15px;
+        font-weight: 700;
+      }
 
-      /* === CONTENT AREA — ПРОЗРАЧНАЯ === */
+      /* CONTENT */
 
-      .content-area {
-        position: absolute;
-        top: 70px;
-        bottom: 90px;
-        left: 0;
-        right: 0;
-
+      .nc-content {
+        flex: 1;
         display: flex;
         justify-content: center;
-        align-items: center;
-        padding: 16px;
-
-        z-index: 5;
+        align-items: stretch;
+        padding: 4px 2px 10px;
       }
 
+      /* TABS */
 
-      /* === BOTTOM TABS — СТЕКЛОМОРФИЗМ + НЕОН === */
-
-      .bottom-tabs {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        padding: 12px 0;
+      .nc-tabs {
         display: flex;
-        justify-content: space-around;
-        z-index: 10;
-
-        /* Ключевые свойства стекломорфизма */
-        background: rgba(255,255,255,0.05);
-        backdrop-filter: blur(28px);
-
-        border-top: 1px solid rgba(255,255,255,0.1);
-        box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 8px 4px;
+        border-radius: 18px;
+        background: var(--nc-tab-bg);
+        border: 1px solid var(--nc-border-soft);
+        box-shadow: 0 -6px 26px rgba(0, 0, 0, 0.9);
       }
 
-      .tab-btn {
-        background: rgba(255,255,255,0.08);
+      .nc-tab-btn {
+        flex: 1;
         border: none;
-        padding: 10px 18px;
-        color: rgba(255,255,255,0.7);
-        font-size: 14px;
-        font-weight: 600;
-        border-radius: 12px;
-        transition: 0.2s ease-out;
+        outline: none;
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: transparent;
+        color: var(--nc-text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 500;
         cursor: pointer;
-        /* Эффект "плавающей" кнопки */
-        transform: translateY(0);
+        transition: background 0.18s ease-out, color 0.18s ease-out, transform 0.18s ease-out;
       }
 
-      .tab-btn:hover {
-        background: rgba(255,255,255,0.15);
+      .nc-tab-icon {
+        font-size: 16px;
       }
 
-      .tab-btn.active {
-        color: #fff;
-        background: rgba(255,255,255,0.18);
-        border: 1px solid rgba(255,255,255,0.3);
-
-        /* Мощное неоновое свечение */
-        box-shadow:
-          0 0 10px rgba(135,206,250,0.5), /* Светлое голубое свечение */
-          0 0 20px rgba(255,255,255,0.15),
-          inset 0 0 16px rgba(255,255,255,0.25); /* Внутренний блик */
-
-        transform: translateY(-4px) scale(1.05); /* Приподнять активную кнопку */
+      .nc-tab-label {
+        font-size: 12px;
       }
-      `}
-    </style>
+
+      .nc-tab-btn.active {
+        background: rgba(255, 213, 74, 0.12);
+        color: var(--nc-text-main);
+        box-shadow: 0 0 0 1px rgba(255, 213, 74, 0.4), 0 0 18px rgba(0, 0, 0, 0.9);
+      }
+
+      .nc-center-message {
+        color: white;
+        font-size: 20px;
+        font-weight: 600;
+        text-shadow: 0 0 12px rgba(255,255,255,0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+      }
+    `}</style>
   );
 }

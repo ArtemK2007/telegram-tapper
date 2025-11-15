@@ -1,404 +1,322 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import tapImage from "./assets/tap.png";
-import { Coins } from "lucide-react";
 
 export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) {
   const energyPercent = (energy / MAX_ENERGY) * 100;
-
   const [floaters, setFloaters] = useState([]);
 
   const spawnFloater = () => {
     const id = Math.random();
-    const x = 50 + (Math.random() * 40 - 20); 
+    const x = 50 + (Math.random() * 30 - 15);
     setFloaters((p) => [...p, { id, x }]);
     setTimeout(() => {
       setFloaters((p) => p.filter((f) => f.id !== id));
-    }, 850);
+    }, 700);
   };
 
   const onTap = () => {
-    if (energy > 0) {
-      spawnFloater();
-      handleTap();
-    }
+    if (energy <= 0) return;
+    spawnFloater();
+    handleTap();
   };
 
   return (
     <motion.div
-      className="tapper-wrapper"
+      className="tap-dark-wrapper"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      {/* ЕДИНЫЙ ГОЛОГРАФИЧЕСКИЙ ФОН */}
-      <div className="tapper-bg-grid" />
+      {/* BALANCE + ARTR */}
+      <div className="tap-dark-score">
+        <div className="tap-dark-score-label">Баланс</div>
+        <div className="tap-dark-score-row">
+          <span className="tap-dark-score-value">
+            {points.toLocaleString("ru-RU")}
+          </span>
+          <span className="tap-dark-score-token">ARTR</span>
+        </div>
+      </div>
 
-      {/* ----------------- SCORE PANEL (НОВЫЙ, ЧИСТЫЙ ДИЗАЙН) ----------------- */}
-      <motion.div
-        className="tapper-score-panel"
-        initial={{ scale: 0.85, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-      >
-        <Coins className="tapper-coins-icon" size={24} /> {/* Размер как на скрине */}
-        <div className="tapper-score-value">{points.toLocaleString()}</div>
-      </motion.div>
-
-      {/* ----------------- TAP BUTTON AREA ----------------- */}
-      <div className="tapper-center">
+      {/* COIN */}
+      <div className="tap-dark-center">
         <motion.button
-          className={`tapper-button ${energy <= 0 ? "disabled" : ""}`}
+          className={`tap-dark-coin-btn ${energy <= 0 ? "disabled" : ""}`}
           onClick={onTap}
           disabled={energy <= 0}
-          whileTap={{ scale: 0.88 }}
-          animate={{ scale: energy <= 0 ? 0.92 : 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 14 }}
+          whileTap={{ scale: 0.94 }}
+          transition={{ type: "spring", stiffness: 260, damping: 18 }}
         >
-          {/* ПЛАЗМЕННОЕ ЯДРО */}
-          <div className="plasma-core" />
-
-          {/* УДАРНАЯ ВОЛНА */}
-          <motion.div
-            className="tap-wave"
-            animate={{ scale: [0.7, 1.8], opacity: [0.6, 0] }}
-            transition={{ duration: 0.45 }}
-            key={points}
-          />
-
-          {/* НЕОНОВОЕ КОЛЬЦО */}
-          <div className="tapper-button-circle" />
-
-          <motion.img
-            src={tapImage}
-            alt="tap"
-            className="tapper-button-img"
-            draggable="false"
-            animate={{
-              filter:
-                energy <= 0
-                  ? "drop-shadow(0px 0px 8px rgba(255,50,50,0.8)) hue-rotate(20deg)"
-                  : "drop-shadow(0px 0px 16px rgba(80,170,255,1))",
-            }}
-          />
-
-          {/* ОБЪЁМНОЕ СВЕЧЕНИЕ */}
-          <div className="tapper-button-glow" />
+          <div className="tap-dark-coin-aura" />
+          <div className="tap-dark-coin">
+            <div className="tap-dark-coin-inner">
+              <motion.img
+                src={tapImage}
+                alt="tap"
+                draggable="false"
+                className="tap-dark-coin-img"
+                animate={{ scale: energy <= 0 ? 0.97 : 1 }}
+              />
+            </div>
+          </div>
         </motion.button>
 
-        {/* ЛЕТАЮЩИЕ +1 */}
         {floaters.map((f) => (
           <motion.div
             key={f.id}
-            className="floater"
-            initial={{ opacity: 1, y: 0, x: f.x }}
-            animate={{ opacity: 0, y: -100 }}
-            transition={{ duration: 0.85 }}
+            className="tap-dark-floater"
+            initial={{ opacity: 0.9, y: 0, x: `${f.x}%` }}
+            animate={{ opacity: 0, y: -60 }}
+            transition={{ duration: 0.7 }}
           >
             +1
           </motion.div>
         ))}
       </div>
 
-      {/* ----------------- ENERGY BAR ----------------- */}
-      <motion.div
-        className="tapper-energy-panel"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <div className="tapper-energy-header">
-          <span className="energy-header-text">⚡ ЭНЕРГИЯ</span>
-          <span>
+      {/* ENERGY */}
+      <div className="tap-dark-energy">
+        <div className="tap-dark-energy-head">
+          <span className="tap-dark-energy-title">Энергия</span>
+          <span className="tap-dark-energy-value">
             {energy} / {MAX_ENERGY}
           </span>
         </div>
-
-        <div className="tapper-energy-bar">
+        <div className="tap-dark-energy-bar">
           <motion.div
-            className="tapper-energy-fill"
+            className="tap-dark-energy-fill"
             initial={{ width: 0 }}
             animate={{ width: `${energyPercent}%` }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.25 }}
           />
         </div>
-      </motion.div>
+      </div>
 
-      <TapperCSS />
+      <TapDarkCSS />
     </motion.div>
   );
 }
 
-/* ------------------ CSS INSIDE COMPONENT ------------------ */
-
-function TapperCSS() {
+function TapDarkCSS() {
   return (
     <style>{`
-/* === UNIVERSAL PREMIUM TON / NOTCOIN STYLE === */
+      .tap-dark-wrapper {
+        width: 100%;
+        height: 100%;
+        padding: 8px 6px 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
 
-body {
-  overflow: hidden;
-}
+      /* SCORE */
 
-.tapper-wrapper {
-  width: 100%;
-  height: 100%;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  overflow: hidden;
-}
+      .tap-dark-score {
+        align-self: center;
+        text-align: left;
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: rgba(10, 12, 22, 0.95);
+        border: 1px solid rgba(255,255,255,0.06);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.9);
+        min-width: 200px;
+      }
 
-/* -------------------------------------------------
-    ГОЛОГРАФИЧЕСКИЙ ФОН
-------------------------------------------------- */
-.tapper-bg-grid {
-  position: absolute;
-  inset: 0;
-  z-index: -5;
+      .tap-dark-score-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: rgba(255,255,255,0.45);
+        margin-bottom: 2px;
+      }
 
-  background: radial-gradient(
-    circle at 50% 20%,
-    rgba(100,100,120,0.3) 0%,
-    rgba(10,10,15,1) 45%,
-    rgba(0,0,0,1) 100%
-  );
-  
-  background-image:
-    linear-gradient(rgba(100,150,255,0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(100,150,255,0.08) 1px, transparent 1px);
-  background-size: 34px 34px;
-  opacity: 0.35;
-  filter: blur(0.5px);
-  
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
-}
+      .tap-dark-score-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
 
+      .tap-dark-score-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: 0.03em;
+      }
 
-/* -------------------------------------------------
-    SCORE PANEL (ПЕРЕДЕЛАННЫЙ В СТИЛЕ СКРИНШОТА)
-------------------------------------------------- */
-.tapper-score-panel {
-  position: relative; 
-  margin-top: 10px;
-  padding: 8px 20px; /* Уменьшил padding для компактности */
-  border-radius: 12px; /* Более мягкое скругление */
+      .tap-dark-score-token {
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #cfd7ff;
+        background: rgba(34, 40, 70, 0.9);
+        border: 1px solid rgba(143, 166, 255, 0.5);
+        box-shadow: 0 0 12px rgba(40, 80, 190, 0.45);
+      }
 
-  /* Фон, как на скрине - темный, почти непрозрачный */
-  background: rgba(30, 30, 40, 0.9); 
-  backdrop-filter: blur(10px); /* Небольшое размытие */
+      /* COIN */
 
-  display: flex;
-  align-items: center;
-  gap: 8px; /* Уменьшил отступ */
+      .tap-dark-center {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
 
-  /* Тонкая, едва заметная светлая рамка */
-  border: 1px solid rgba(255,255,255,0.1); 
-  
-  /* Аккуратная тень, без внутренних бликов */
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      .tap-dark-coin-btn {
+        border: none;
+        background: transparent;
+        padding: 0;
+        cursor: pointer;
+        outline: none;
+        position: relative;
+      }
 
-  width: max-content;
-  margin-left: auto;
-  margin-right: auto;
-  z-index: 10;
-  overflow: hidden;
-  
-  /* Удалил глянцевый градиент */
-  background-image: none;
-}
+      .tap-dark-coin-btn.disabled {
+        cursor: default;
+        opacity: 0.55;
+      }
 
-.tapper-coins-icon {
-  color: #cdd8ff; /* Более приглушенный голубой */
-  opacity: 0.85;
-  /* Мягкое, нежное свечение */
-  filter: drop-shadow(0 0 5px rgba(140,170,255,0.4));
-}
+      .tap-dark-coin-aura {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(80,140,255,0.22), transparent 70%);
+        filter: blur(20px);
+        z-index: 0;
+      }
 
-.tapper-score-value {
-  font-size: 26px; /* Чуть меньше */
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.3px;
-  /* Мягкое свечение текста */
-  text-shadow: 0 0 6px rgba(140,170,255,0.35);
-}
+      .tap-dark-coin {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 20%, #2f384a 0%, #111623 55%, #05070d 100%);
+        box-shadow:
+          0 10px 28px rgba(0,0,0,0.95),
+          0 0 0 1px rgba(255,255,255,0.07);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
 
-/* -------------------------------------------------
-    TAP BUTTON / REACTOR CORE (Размеры оставлены максимальными)
-------------------------------------------------- */
-.tapper-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  position: relative;
-}
+      .tap-dark-coin::before {
+        content: "";
+        position: absolute;
+        inset: 12px;
+        border-radius: 50%;
+        border: 1px solid rgba(255,255,255,0.14);
+        box-shadow: inset 0 0 14px rgba(0,0,0,0.9);
+        opacity: 0.95;
+      }
 
-.tapper-button {
-  position: relative;
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  border-radius: 50%;
-  outline: none;
-  touch-action: manipulation;
-}
+      .tap-dark-coin-inner {
+        width: 68%;
+        height: 68%;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 20%, #3b4760 0%, #161b28 50%, #05070d 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
 
-.tapper-button.disabled {
-  opacity: 0.4;
-  transition: 0.3s;
-}
+      .tap-dark-coin-inner::before {
+        content: "";
+        position: absolute;
+        inset: 12%;
+        border-radius: 50%;
+        border-top: 2px solid rgba(255,255,255,0.06);
+        border-left: 1px solid rgba(255,255,255,0.05);
+        border-right: 1px solid rgba(0,0,0,0.85);
+        border-bottom: 2px solid rgba(0,0,0,1);
+        opacity: 0.7;
+      }
 
-/* ПЛАЗМЕННОЕ ЯДРО (ВНУТРИ КНОПКИ) */
-.plasma-core {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 350px; 
-  height: 350px; 
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    rgba(50,150,255,0.35),
-    rgba(0,0,0,0.5) 75%
-  );
-  filter: blur(55px);
-  animation: corePulse 3s infinite alternate ease-in-out;
-  z-index: -3;
-}
+      .tap-dark-coin-img {
+        width: 52%;
+        height: 52%;
+        object-fit: contain;
+        position: relative;
+        z-index: 1;
+        filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9));
+      }
 
-@keyframes corePulse {
-  0% { transform: scale(0.95); opacity: 0.55; }
-  100% { transform: scale(1.25); opacity: 0.8; }
-}
+      /* FLOATERS */
 
-/* УДАРНАЯ ВОЛНА */
-.tap-wave {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 350px; 
-  height: 350px; 
-  border-radius: 50%;
-  border: 4px solid rgba(135,206,250,0.7);
-  box-shadow: 0 0 25px rgba(135,206,250,0.5);
-  z-index: -1;
-}
+      .tap-dark-floater {
+        position: absolute;
+        font-size: 18px;
+        font-weight: 600;
+        color: #e5ecff;
+      }
 
-/* НЕОНОВОЕ КОЛЬЦО */
-.tapper-button-circle {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
+      /* ENERGY */
 
-  background: radial-gradient(
-    circle,
-    rgba(100,170,255,0.4) 0%,
-    rgba(100,170,255,0.1) 60%,
-    transparent 80%
-  );
+      .tap-dark-energy {
+        padding: 10px 12px 6px;
+        border-radius: 16px;
+        background: rgba(7, 9, 18, 0.96);
+        border: 1px solid rgba(255,255,255,0.06);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.9);
+      }
 
-  filter: blur(45px);
-  z-index: -2;
-  opacity: 0.8;
-}
+      .tap-dark-energy-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 12px;
+      }
 
-/* КНОПКА / КАРТИНКА */
-.tapper-button-img {
-  width: 300px;
-  height: 300px;
-  user-select: none;
-  z-index: 3;
-  box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
-  border-radius: 50%;
-}
+      .tap-dark-energy-title {
+        font-weight: 600;
+        color: #ffffff;
+      }
 
-/* ГЛОУ */
-.tapper-button-glow {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    rgba(150,170,255,0.4),
-    transparent 80%
-  );
-  filter: blur(35px);
-  z-index: -1;
-}
+      .tap-dark-energy-value {
+        color: rgba(255,255,255,0.7);
+      }
 
-/* -------------------------------------------------
-    FLOATING +1
-------------------------------------------------- */
-.floater {
-  position: absolute;
-  font-size: 32px;
-  font-weight: 800;
-  color: #e0f0ff;
-  text-shadow: 0 0 10px rgba(150,170,255,1);
-  pointer-events: none;
-}
+      .tap-dark-energy-bar {
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.04);
+        overflow: hidden;
+      }
 
-/* -------------------------------------------------
-    ENERGY BAR
-------------------------------------------------- */
-.tapper-energy-panel {
-  padding: 16px;
-  border-radius: 18px;
+      .tap-dark-energy-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #4a8cff 0%, #7cecff 100%);
+        box-shadow: 0 0 16px rgba(90,150,255,0.6);
+      }
 
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(24px);
+      @media (max-width: 400px) {
+        .tap-dark-coin {
+          width: 165px;
+          height: 165px;
+        }
 
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow:
-    inset 0 0 20px rgba(255,255,255,0.05),
-    0 0 30px rgba(0,0,0,0.5);
+        .tap-dark-coin-aura {
+          width: 180px;
+          height: 180px;
+        }
 
-  margin-bottom: 10px;
-  z-index: 10;
-}
-
-.tapper-energy-header {
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  letter-spacing: 0.6px;
-}
-
-.energy-header-text {
-    text-shadow: 0 0 4px rgba(150,170,255,0.4);
-}
-
-.tapper-energy-bar {
-  width: 100%;
-  height: 18px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.08);
-  overflow: hidden;
-  position: relative;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.tapper-energy-fill {
-  height: 100%;
-  border-radius: 12px;
-
-  background: linear-gradient(
-    90deg,
-    #4a90e2 0%,
-    #7bc0ff 100%
-  );
-
-  box-shadow:
-    0 0 18px rgba(100,170,255,0.6),
-    inset 0 0 10px rgba(255,255,255,0.2);
-}
-
-`}</style>
+        .tap-dark-score-value {
+          font-size: 22px;
+        }
+      }
+    `}</style>
   );
 }
