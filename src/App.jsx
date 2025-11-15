@@ -379,7 +379,7 @@ function NotcoinCSS() {
         align-items: center;
         justify-content: flex-start;
         padding: 25px 8px 6px;
-        margin-bottom: 50px;
+        margin-bottom: 27px;
       }
 
       .nc-header-left {
