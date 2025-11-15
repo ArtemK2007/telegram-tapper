@@ -35,6 +35,9 @@ export default function App() {
 
   const [tapsSinceLastSave, setTapsSinceLastSave] = useState(0);
 
+  const [playerName, setPlayerName] = useState("");
+  const [playerBranch, setPlayerBranch] = useState("Main"); // Tester / Old / Main
+
   useEffect(() => {
     async function authenticate() {
       const { data: authData } = await supabase.auth.getUser();
@@ -54,21 +57,54 @@ export default function App() {
     }
 
     async function loadPlayer(id) {
+      // Получаем игрока с created_at, чтобы считать позицию
       const { data, error } = await supabase
         .from("players")
-        .select("username, points, energy_current")
+        .select("username, points, energy_current, created_at")
         .eq("id", id)
         .single();
 
       if (data) {
         setPoints(data.points);
         setEnergy(data.energy_current);
+        setPlayerName(data.username);
         setNeedsName(false);
+
+        // пытаемся вычислить ветку по позиции
+        await calculateBranch(data.created_at);
       } else if (error && error.code === "PGRST116") {
         setNeedsName(true);
       }
 
       setLoading(false);
+    }
+
+    async function calculateBranch(createdAt) {
+      if (!createdAt) {
+        setPlayerBranch("Main");
+        return;
+      }
+
+      // Считаем, сколько игроков были созданы раньше или в тот же момент
+      const { data: countData, error: countError } = await supabase
+        .from("players")
+        .select("id, created_at")
+        .lte("created_at", createdAt);
+
+      if (countError || !countData) {
+        setPlayerBranch("Main");
+        return;
+      }
+
+      const position = countData.length;
+
+      if (position <= 100) {
+        setPlayerBranch("Tester");
+      } else if (position <= 1500) {
+        setPlayerBranch("Old");
+      } else {
+        setPlayerBranch("Main");
+      }
     }
 
     authenticate();
@@ -90,17 +126,60 @@ export default function App() {
       return;
     }
 
-    await supabase.from("players").insert({
-      id: user.id,
-      username,
-      points: 0,
-      energy_current: 1000,
-    });
+    // создаём нового игрока
+    const { data: insertData, error: insertError } = await supabase
+      .from("players")
+      .insert({
+        id: user.id,
+        username,
+        points: 0,
+        energy_current: 1000,
+      })
+      .select("created_at")
+      .single();
+
+    if (insertError) {
+      setLoading(false);
+      return;
+    }
 
     setPoints(0);
     setEnergy(1000);
+    setPlayerName(username);
     setNeedsName(false);
+
+    // сразу посчитаем ветку для только что созданного игрока
+    await calculateBranchSafe(insertData?.created_at);
+
     setLoading(false);
+  }
+
+  // Обёртка, чтобы использовать calculateBranch вне useEffect
+  async function calculateBranchSafe(createdAt) {
+    if (!createdAt) {
+      setPlayerBranch("Main");
+      return;
+    }
+
+    const { data: countData, error: countError } = await supabase
+      .from("players")
+      .select("id, created_at")
+      .lte("created_at", createdAt);
+
+    if (countError || !countData) {
+      setPlayerBranch("Main");
+      return;
+    }
+
+    const position = countData.length;
+
+    if (position <= 100) {
+      setPlayerBranch("Tester");
+    } else if (position <= 1500) {
+      setPlayerBranch("Old");
+    } else {
+      setPlayerBranch("Main");
+    }
   }
 
   useEffect(() => {
@@ -210,12 +289,14 @@ export default function App() {
       >
         <div className="nc-header-left">
           <div className="nc-avatar-circle">
-            <span>AR</span>
+            <span>{(playerName || "ARTR").slice(0, 2).toUpperCase()}</span>
           </div>
           <div className="nc-project-info">
-            <div className="nc-project-name">ARTR Network</div>
+            <div className="nc-project-name">
+              {playerName || "ARTR Network"}
+            </div>
             <div className="nc-project-sub">
-              <span className="nc-project-tag">Main</span>
+              <span className="nc-project-tag">{playerBranch}</span>
               <span className="nc-project-divider">•</span>
               <span className="nc-project-tag-muted">Tap-to-Earn</span>
             </div>
