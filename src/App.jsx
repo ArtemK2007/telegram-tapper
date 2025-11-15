@@ -303,95 +303,145 @@ function NeonCSS() {
   return (
     <style>
       {`
+      /* === PREMIUM NOTCOIN BLACK THEME === */
+
       .neon-wrapper {
         position: relative;
         width: 100vw;
         height: 100vh;
         overflow: hidden;
-        background: #000;
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+        background: #050506;
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', Inter, sans-serif;
       }
 
+      /* Smooth royal gradient */
       .neon-gradient {
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, #0a0a0c, #111116, #09090b, #1a1a22);
-        background-size: 300% 300%;
+        background: radial-gradient(circle at 30% 20%, #141418 0%, #050506 70%);
+        background-size: 200% 200%;
+        animation: gradientShift 16s ease-in-out infinite;
         z-index: 0;
       }
 
+      @keyframes gradientShift {
+        0% { background-position: 0% 0%; }
+        50% { background-position: 100% 100%; }
+        100% { background-position: 0% 0%; }
+      }
+
+      /* Very soft grain (premium, subtle) */
       .neon-noise {
         position: absolute;
         inset: 0;
         background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-        opacity: 0.15;
+        opacity: 0.06;
         mix-blend-mode: overlay;
         z-index: 1;
       }
 
+      /* internal glow */
       .neon-glow {
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at center, rgba(150,170,255,0.2), transparent 70%);
+        background: radial-gradient(circle at center, rgba(255,255,255,0.09), transparent 60%);
+        opacity: 0.1;
         z-index: 2;
-        pointer-events: none;
       }
+
+      /* === TOP BAR === */
 
       .top-bar {
         position: absolute;
         top: 0;
         width: 100%;
-        padding: 16px 0;
+        padding: 18px 0;
         text-align: center;
         z-index: 10;
+
+        background: rgba(15,15,20,0.45);
+        backdrop-filter: blur(18px);
+
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+
+        box-shadow:
+          0 2px 12px rgba(0,0,0,0.6),
+          inset 0 -1px 0 rgba(255,255,255,0.05);
       }
 
       .top-title {
-        color: #fff;
-        font-size: 20px;
-        text-shadow: 0 0 10px rgba(150,170,255,0.8);
+        letter-spacing: 0.3px;
+        font-size: 19px;
+        font-weight: 600;
+        color: #f4f4f5;
+        text-shadow: 0 0 4px rgba(255,255,255,0.25);
       }
+
+      /* === CONTENT AREA === */
 
       .content-area {
         position: absolute;
         top: 70px;
-        bottom: 80px;
+        bottom: 90px;
         left: 0;
         right: 0;
-        z-index: 5;
+
         display: flex;
         justify-content: center;
         align-items: center;
+        padding: 16px;
+
+        z-index: 5;
       }
+
+      /* === BOTTOM TABS (Notcoin-like) === */
 
       .bottom-tabs {
         position: absolute;
         bottom: 0;
         width: 100%;
-        padding: 14px 0;
+        padding: 10px 0;
         display: flex;
         justify-content: space-around;
         z-index: 10;
-        background: rgba(255,255,255,0.05);
+
+        background: rgba(15,15,20,0.45);
         backdrop-filter: blur(25px);
-        border-top: 1px solid rgba(255,255,255,0.1);
+
+        border-top: 1px solid rgba(255,255,255,0.05);
+        box-shadow:
+          0 -4px 16px rgba(0,0,0,0.45),
+          inset 0 1px 0 rgba(255,255,255,0.05);
       }
 
       .tab-btn {
-        background: transparent;
+        background: rgba(255,255,255,0.03);
         border: none;
-        padding: 10px 20px;
+        padding: 10px 24px;
         color: rgba(255,255,255,0.6);
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 500;
-        border-radius: 12px;
+        border-radius: 14px;
+        backdrop-filter: blur(12px);
         transition: 0.25s;
+        box-shadow: inset 0 0 0 0 rgba(255,255,255,0.05);
+      }
+
+      .tab-btn:hover {
+        background: rgba(255,255,255,0.06);
       }
 
       .tab-btn.active {
-        color: white;
-        background: rgba(150,170,255,0.15);
-        box-shadow: 0 0 15px rgba(150,170,255,0.4), inset 0 0 10px rgba(150,170,255,0.25);
+        color: #fff;
+        background: rgba(255,255,255,0.09);
+        border: 1px solid rgba(255,255,255,0.15);
+
+        box-shadow:
+          0 0 10px rgba(255,255,255,0.15),
+          inset 0 0 12px rgba(255,255,255,0.15);
+
+        transform: translateY(-2px);
       }
       `}
     </style>

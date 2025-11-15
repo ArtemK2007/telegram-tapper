@@ -85,7 +85,8 @@ function TapperCSS() {
   return (
     <style>{`
 
-    /* WRAPPER */
+    /* === PREMIUM NOTCOIN BLACK STYLE === */
+
     .tapper-wrapper {
       width: 100%;
       height: 100%;
@@ -95,36 +96,49 @@ function TapperCSS() {
       justify-content: space-between;
     }
 
-    /* SCORE PANEL */
+    /* ----------------------------------------------
+       SCORE PANEL — премиальное черное стекло
+    ---------------------------------------------- */
     .tapper-score-panel {
       margin-top: 10px;
-      padding: 10px 22px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.06);
-      backdrop-filter: blur(14px);
+      padding: 10px 26px;
+      border-radius: 18px;
+
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(22px);
+
       display: flex;
       align-items: center;
       gap: 10px;
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 0 15px rgba(150,170,255,0.25);
+
+      border: 1px solid rgba(255,255,255,0.06);
+
+      box-shadow:
+        inset 0 0 20px rgba(255,255,255,0.03),
+        0 4px 20px rgba(0,0,0,0.6);
+
       width: max-content;
       margin-left: auto;
       margin-right: auto;
     }
 
     .tapper-coins-icon {
-      color: #d8e0ff;
-      filter: drop-shadow(0 0 6px rgba(150,170,255,0.8));
+      color: #fff;
+      opacity: 0.85;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.25));
     }
 
     .tapper-score-value {
-      font-size: 24px;
-      font-weight: 600;
-      color: white;
-      text-shadow: 0 0 12px rgba(150,170,255,0.7);
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.3px;
+      text-shadow: 0 0 6px rgba(255,255,255,0.2);
     }
 
-    /* TAP BUTTON */
+    /* ----------------------------------------------
+       TAP BUTTON — монета как в NOTCOIN
+    ---------------------------------------------- */
     .tapper-center {
       display: flex;
       justify-content: center;
@@ -143,71 +157,105 @@ function TapperCSS() {
     }
 
     .tapper-button.disabled {
-      opacity: 0.6;
+      opacity: 0.35;
+      transition: 0.2s;
     }
 
+    /* Монетка */
     .tapper-button-img {
-      width: 200px;
-      height: 200px;
+      width: 210px;
+      height: 210px;
       user-select: none;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.7));
     }
 
+    /* Подсветка круга под монетой (тонкая как у Notcoin) */
     .tapper-button-circle {
       position: absolute;
       inset: 0;
       margin: auto;
-      width: 180px;
-      height: 180px;
+      width: 200px;
+      height: 200px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(140,179,255,0.3), rgba(140,179,255,0.05));
-      z-index: -2; /* позади glow и картинки */
-      filter: blur(30px);
+
+      background: radial-gradient(
+        circle,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.05) 55%,
+        transparent 75%
+      );
+
+      filter: blur(28px);
+      z-index: -2;
+      opacity: 0.5;
     }
 
+    /* Легкое premium-glow */
     .tapper-button-glow {
       position: absolute;
       inset: 0;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(150,170,255,0.4), transparent 70%);
+      background: radial-gradient(circle,
+        rgba(255,255,255,0.25),
+        transparent 70%
+      );
       filter: blur(25px);
       z-index: -1;
       pointer-events: none;
+      opacity: 0.55;
     }
 
-    /* ENERGY PANEL */
+    /* ----------------------------------------------
+       ENERGY BAR — минимализм HK/Notcoin
+    ---------------------------------------------- */
+
     .tapper-energy-panel {
-      padding: 16px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.06);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: inset 0 0 12px rgba(150,170,255,0.2);
-      margin-bottom: 15px;
+      padding: 18px;
+      border-radius: 18px;
+
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px);
+
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow:
+        inset 0 0 20px rgba(255,255,255,0.03),
+        0 0 20px rgba(0,0,0,0.4);
+
+      margin-bottom: 10px;
     }
 
     .tapper-energy-header {
-      font-size: 16px;
-      color: #fff;
+      font-size: 15px;
+      color: rgba(255,255,255,0.85);
       display: flex;
       justify-content: space-between;
-      margin-bottom: 8px;
-      text-shadow: 0 0 6px rgba(150,170,255,0.7);
+      margin-bottom: 10px;
+      letter-spacing: 0.4px;
     }
 
     .tapper-energy-bar {
       width: 100%;
-      height: 14px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.1);
+      height: 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
       overflow: hidden;
       position: relative;
+      border: 1px solid rgba(255,255,255,0.08);
     }
 
     .tapper-energy-fill {
-      height: 14px;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #8cb3ff, #c8d4ff);
-      box-shadow: 0 0 12px rgba(150,170,255,0.8);
+      height: 16px;
+      border-radius: 12px;
+
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.9),
+        rgba(255,255,255,0.65)
+      );
+
+      box-shadow:
+        0 0 14px rgba(255,255,255,0.45),
+        inset 0 0 10px rgba(255,255,255,0.3);
     }
 
   `}</style>
