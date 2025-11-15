@@ -6,7 +6,6 @@ import { Coins } from "lucide-react";
 export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) {
   const energyPercent = (energy / MAX_ENERGY) * 100;
 
-  // ------- ЛЕТАЮЩИЕ +1 ЭФФЕКТЫ -------
   const [floaters, setFloaters] = useState([]);
 
   const spawnFloater = () => {
@@ -34,16 +33,14 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
       {/* ЕДИНЫЙ ГОЛОГРАФИЧЕСКИЙ ФОН */}
       <div className="tapper-bg-grid" />
 
-      {/* ----------------- SCORE PANEL (СНОВА ПЕРЕДЕЛАНО) ----------------- */}
+      {/* ----------------- SCORE PANEL (НОВЫЙ, ЧИСТЫЙ ДИЗАЙН) ----------------- */}
       <motion.div
         className="tapper-score-panel"
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
       >
-        <Coins className="tapper-coins-icon" size={26} />
+        <Coins className="tapper-coins-icon" size={24} /> {/* Размер как на скрине */}
         <div className="tapper-score-value">{points.toLocaleString()}</div>
-        
-        {/* УДАЛИЛ: Голографический обвод */}
       </motion.div>
 
       {/* ----------------- TAP BUTTON AREA ----------------- */}
@@ -178,28 +175,27 @@ body {
 
 
 /* -------------------------------------------------
-    SCORE PANEL (ПЕРЕДЕЛАННЫЙ ГЛЯНЦЕВЫЙ СЛИТОК)
+    SCORE PANEL (ПЕРЕДЕЛАННЫЙ В СТИЛЕ СКРИНШОТА)
 ------------------------------------------------- */
 .tapper-score-panel {
   position: relative; 
   margin-top: 10px;
-  padding: 12px 28px;
-  border-radius: 20px;
+  padding: 8px 20px; /* Уменьшил padding для компактности */
+  border-radius: 12px; /* Более мягкое скругление */
 
-  /* Небольшая, чистая прозрачность */
-  background: rgba(255,255,255,0.1); 
-  backdrop-filter: blur(18px); 
+  /* Фон, как на скрине - темный, почти непрозрачный */
+  background: rgba(30, 30, 40, 0.9); 
+  backdrop-filter: blur(10px); /* Небольшое размытие */
 
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px; /* Уменьшил отступ */
 
-  /* Толстая, заметная рамка */
-  border: 2px solid rgba(255,255,255,0.3); 
+  /* Тонкая, едва заметная светлая рамка */
+  border: 1px solid rgba(255,255,255,0.1); 
   
-  box-shadow:
-    inset 0 0 40px rgba(255,255,255,0.15), /* Мощный внутренний блик */
-    0 8px 30px rgba(0,0,0,0.8); /* Глубокая тень */
+  /* Аккуратная тень, без внутренних бликов */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 
   width: max-content;
   margin-left: auto;
@@ -207,30 +203,24 @@ body {
   z-index: 10;
   overflow: hidden;
   
-  /* Добавляем внутренний глянцевый градиент для объема */
-  background-image: linear-gradient(
-    180deg, 
-    rgba(255,255,255,0.15) 0%, 
-    rgba(255,255,255,0) 50%
-  );
+  /* Удалил глянцевый градиент */
+  background-image: none;
 }
 
-/* УДАЛИЛ: score-panel-glow-border и @keyframes glowMove */
-
 .tapper-coins-icon {
-  color: #aed9ff;
-  opacity: 0.95;
-  /* Усилил свечение иконки */
-  filter: drop-shadow(0 0 10px rgba(135,206,250,1));
+  color: #cdd8ff; /* Более приглушенный голубой */
+  opacity: 0.85;
+  /* Мягкое, нежное свечение */
+  filter: drop-shadow(0 0 5px rgba(140,170,255,0.4));
 }
 
 .tapper-score-value {
-  font-size: 30px;
-  font-weight: 800;
+  font-size: 26px; /* Чуть меньше */
+  font-weight: 700;
   color: #fff;
-  letter-spacing: 0.5px;
-  /* Усилил свечение текста */
-  text-shadow: 0 0 12px rgba(140,170,255,0.9);
+  letter-spacing: 0.3px;
+  /* Мягкое свечение текста */
+  text-shadow: 0 0 6px rgba(140,170,255,0.35);
 }
 
 /* -------------------------------------------------

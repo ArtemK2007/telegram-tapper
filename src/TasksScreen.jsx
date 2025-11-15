@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion'; // Импортируем motion для масштабирования
 
 export default function TasksScreen() {
   return (
@@ -6,53 +7,62 @@ export default function TasksScreen() {
 
       {/* Голографическая фоновая сетка */}
       <div className="tasks-bg-grid"></div>
+      
+      {/* 💥 ОБЕРТКА С МАСШТАБОМ 0.75 💥 */}
+      <motion.div 
+        className="tasks-scaled-content"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 0.75, opacity: 1 }} // Масштабирование до 0.75
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      >
+        <div className="tasks-card">
 
-      <div className="tasks-card">
+          {/* 3D ICON - Улучшенное неоновое свечение */}
+          <div className="tasks-icon-wrapper">
+            <div className="tasks-icon-glow"></div>
+            <svg
+              className="tasks-icon"
+              width="72"
+              height="72"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                d="M7 7H17M7 12H17M7 17H13"
+                stroke="white"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
 
-        {/* 3D ICON - Улучшенное неоновое свечение */}
-        <div className="tasks-icon-wrapper">
-          <div className="tasks-icon-glow"></div>
-          <svg
-            className="tasks-icon"
-            width="72"
-            height="72"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <path
-              d="M7 7H17M7 12H17M7 17H13"
-              stroke="white"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+          {/* Измененный заголовок и подзаголовок */}
+          <h2 className="tasks-title">⚙️ ПОДГОТОВКА К ЗАПУСКУ</h2>
+          <p className="tasks-subtitle">Получи максимум монет за выполнение следующих шагов:</p>
 
-        {/* Измененный заголовок и подзаголовок */}
-        <h2 className="tasks-title">⚙️ ПОДГОТОВКА К ЗАПУСКУ</h2>
-        <p className="tasks-subtitle">Получи максимум монет за выполнение следующих шагов:</p>
+          {/* SKELETON LIST - Премиальная загрузка */}
+          <div className="tasks-skeleton-list">
 
-        {/* SKELETON LIST - Премиальная загрузка */}
-        <div className="tasks-skeleton-list">
-
-          {/* Увеличил количество скелетов для ощущения масштаба */}
-          {[1, 2, 3].map((i) => (
-            <div className="task-skeleton" key={i}>
-              <div className="task-skeleton-icon"></div>
-              <div className="task-skeleton-lines">
-                {/* Скелетные линии разных размеров для разнообразия */}
-                <div className={`task-skeleton-line ${i % 2 === 0 ? 'short' : 'long'}`}></div>
-                <div className={`task-skeleton-line ${i % 2 === 0 ? 'long' : 'short'}`}></div>
+            {/* Увеличил количество скелетов для ощущения масштаба */}
+            {[1, 2, 3].map((i) => (
+              <div className="task-skeleton" key={i}>
+                <div className="task-skeleton-icon"></div>
+                <div className="task-skeleton-lines">
+                  {/* Скелетные линии разных размеров для разнообразия */}
+                  <div className={`task-skeleton-line ${i % 2 === 0 ? 'short' : 'long'}`}></div>
+                  <div className={`task-skeleton-line ${i % 2 === 0 ? 'long' : 'short'}`}></div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
+          </div>
+
+          {/* Pulse underline */}
+          <div className="tasks-progress-pulse" />
         </div>
-
-        {/* Pulse underline */}
-        <div className="tasks-progress-pulse" />
-      </div>
+      </motion.div>
+      {/* 💥 КОНЕЦ ОБЕРТКИ 💥 */}
 
       <TasksCSS />
     </div>
@@ -67,15 +77,27 @@ function TasksCSS() {
     .tasks-wrapper {
       width: 100%;
       height: 100%;
-      padding: 22px;
+      /* Убираем лишний padding, чтобы контент мог расширяться */
+      padding: 0; 
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
       overflow: hidden;
-      overflow-y: auto; /* Добавил скролл для длинного списка */
-      padding-top: 50px;
+      overflow-y: auto; 
     }
+    
+    /* === SCALED CONTENT (НОВЫЙ КОНТЕЙНЕР ДЛЯ МАСШТАБА) === */
+    .tasks-scaled-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* Выравниваем вверх, чтобы было место для скролла */
+      padding: 50px 22px 20px 22px; /* Добавляем padding здесь, а не в wrapper */
+      /* Центрирование и масштабирование будет обрабатывать framer-motion */
+    }
+
 
     /* === 3D GRID BACKGROUND === */
     .tasks-bg-grid {
@@ -95,9 +117,9 @@ function TasksCSS() {
 
     /* === CARD (Стекломорфизм) === */
     .tasks-card {
-      width: 100%; /* Убрал ограничение ширины для лучшего скроллинга */
+      width: 100%; 
       max-width: 450px;
-      padding: 30px 18px 40px; /* Уменьшил вертикальный padding */
+      padding: 30px 18px 40px; 
       border-radius: 26px;
       
       /* Темный полупрозрачный фон + сильное размытие */
@@ -108,18 +130,15 @@ function TasksCSS() {
       text-align: center;
       position: relative;
       overflow: hidden;
-      animation: cardFadeIn .55s ease forwards;
+      /* Убрали анимацию cardFadeIn, т.к. ее заменила motion.div */
       
       /* Премиальное свечение карточки */
       box-shadow: 
-        0 0 50px rgba(100,150,255,0.25), /* Внешнее неоновое свечение */
-        inset 0 0 15px rgba(255,255,255,0.05); /* Внутренний блик */
+        0 0 50px rgba(100,150,255,0.25), 
+        inset 0 0 15px rgba(255,255,255,0.05); 
     }
 
-    @keyframes cardFadeIn {
-      from { opacity: 0; transform: translateY(20px) scale(0.95); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
+    /* Удалили @keyframes cardFadeIn */
 
     /* === 3D ICON === */
     .tasks-icon-wrapper {
@@ -140,8 +159,8 @@ function TasksCSS() {
       
       /* Голографическое свечение и тень */
       box-shadow: 
-        inset 0 0 25px rgba(135,206,250,0.3), /* Внутренний голубой свет */
-        0 0 25px rgba(135,206,250,0.4); /* Внешнее голубое свечение */
+        inset 0 0 25px rgba(135,206,250,0.3), 
+        0 0 25px rgba(135,206,250,0.4); 
         
       animation: iconPop .55s ease;
     }
