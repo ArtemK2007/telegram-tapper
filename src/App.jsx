@@ -249,28 +249,14 @@ export default function App() {
             <span>{(playerName || "ARTR").slice(0, 2).toUpperCase()}</span>
           </div>
 
-          <div className="nc-header-main">
-            {/* БАЛАНС СВЕРХУ */}
-            <div className="nc-balance-pill nc-balance-inline">
-              <div className="nc-balance-label">Баланс</div>
-              <div className="nc-balance-row">
-                <span className="nc-balance-value">
-                  {points.toLocaleString("ru-RU")}
-                </span>
-                <span className="nc-balance-token">ARTR</span>
-              </div>
+          <div className="nc-project-info">
+            <div className="nc-project-name">
+              {playerName || "ARTR Network"}
             </div>
-
-            {/* ИМЯ + ВЕТКА СНИЗУ */}
-            <div className="nc-project-info">
-              <div className="nc-project-name">
-                {playerName || "ARTR Network"}
-              </div>
-              <div className="nc-project-sub">
-                <span className="nc-project-tag">{playerBranch}</span>
-                <span className="nc-project-divider">•</span>
-                <span className="nc-project-tag-muted">Tap-to-Earn</span>
-              </div>
+            <div className="nc-project-sub">
+              <span className="nc-project-tag">{playerBranch}</span>
+              <span className="nc-project-divider">•</span>
+              <span className="nc-project-tag-muted">Tap-to-Earn</span>
             </div>
           </div>
         </div>
@@ -418,12 +404,6 @@ function NotcoinCSS() {
           0 0 0 1px rgba(255, 255, 255, 0.06);
       }
 
-      .nc-header-main {
-        display: flex;
-        flex-direction: column;
-        gap: 6px; /* расстояние между балансом и блоком имени */
-      }
-
       .nc-project-info {
         display: flex;
         flex-direction: column;
@@ -446,58 +426,9 @@ function NotcoinCSS() {
         color: #cfd7ff;
       }
 
-      .nc-project-tag-muted {
-        color: var(--nc-text-muted);
-      }
-
+      .nc-project-tag-muted,
       .nc-project-divider {
         color: var(--nc-text-muted);
-      }
-
-      .nc-balance-pill {
-        padding: 4px 10px;
-        border-radius: 999px;
-        background: rgba(10, 12, 22, 0.96);
-        border: 1px solid rgba(255,255,255,0.08);
-        box-shadow: 0 10px 24px rgba(0,0,0,0.9);
-        min-width: 0;
-      }
-
-      .nc-balance-inline {
-        align-self: flex-start;
-      }
-
-      .nc-balance-label {
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: rgba(255,255,255,0.45);
-        margin-bottom: 2px;
-      }
-
-      .nc-balance-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-      }
-
-      .nc-balance-value {
-        font-size: 18px;
-        font-weight: 700;
-        color: #ffffff;
-      }
-
-      .nc-balance-token {
-        padding: 2px 10px;
-        border-radius: 999px;
-        font-size: 10px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: #cfd7ff;
-        background: rgba(34, 40, 70, 0.9);
-        border: 1px solid rgba(143, 166, 255, 0.5);
       }
 
       /* CONTENT */

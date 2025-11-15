@@ -9,9 +9,9 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
   const spawnFloater = () => {
     const id = Math.random();
     const x = 50 + (Math.random() * 30 - 15);
-    setFloaters((p) => [...p, { id, x }]);
+    setFloaters((prev) => [...prev, { id, x }]);
     setTimeout(() => {
-      setFloaters((p) => p.filter((f) => f.id !== id));
+      setFloaters((prev) => prev.filter((f) => f.id !== id));
     }, 700);
   };
 
@@ -27,6 +27,17 @@ export default function TapperScreen({ points, energy, handleTap, MAX_ENERGY }) 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
+      {/* BALANCE над кнопкой */}
+      <div className="tap-dark-balance">
+        <div className="tap-dark-balance-label">Баланс</div>
+        <div className="tap-dark-balance-row">
+          <span className="tap-dark-balance-value">
+            {points.toLocaleString("ru-RU")}
+          </span>
+          <span className="tap-dark-balance-token">ARTR</span>
+        </div>
+      </div>
+
       {/* COIN */}
       <div className="tap-dark-center">
         <motion.button
@@ -96,6 +107,52 @@ function TapDarkCSS() {
         justify-content: space-between;
       }
 
+      /* BALANCE над монетой */
+
+      .tap-dark-balance {
+        align-self: center;
+        margin-bottom: 4px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: rgba(10, 12, 22, 0.96);
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.9);
+        min-width: 0;
+      }
+
+      .tap-dark-balance-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: rgba(255,255,255,0.45);
+        margin-bottom: 2px;
+      }
+
+      .tap-dark-balance-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .tap-dark-balance-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      .tap-dark-balance-token {
+        padding: 2px 10px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #cfd7ff;
+        background: rgba(34, 40, 70, 0.9);
+        border: 1px solid rgba(143, 166, 255, 0.5);
+      }
+
       /* COIN */
 
       .tap-dark-center {
@@ -120,12 +177,11 @@ function TapDarkCSS() {
         opacity: 0.55;
       }
 
-      /* Аура вокруг круга (можно выключить, если надо совсем плоско) */
       .tap-dark-coin-aura {
         position: absolute;
         inset: 0;
         margin: auto;
-        width: 320px;      /* было 280 → ×1.2 примерно */
+        width: 320px;
         height: 320px;
         border-radius: 50%;
         background: radial-gradient(circle, rgba(80,140,255,0.16), transparent 70%);
@@ -133,12 +189,11 @@ function TapDarkCSS() {
         z-index: 0;
       }
 
-      /* Сам круг: одноцветный тёмный металл, увеличен ×1.2 */
       .tap-dark-coin {
-        width: 300px;      /* было ~250 → ×1.2 */
+        width: 300px;
         height: 300px;
         border-radius: 50%;
-        background: #111623;  /* однотонный тёмный круг */
+        background: #111623;
         box-shadow:
           0 16px 40px rgba(0,0,0,0.95),
           0 0 0 1px rgba(255,255,255,0.06);
@@ -149,7 +204,6 @@ function TapDarkCSS() {
         overflow: hidden;
       }
 
-      /* Тонкий ободок по краю */
       .tap-dark-coin::before {
         content: "";
         position: absolute;
@@ -159,7 +213,6 @@ function TapDarkCSS() {
         opacity: 0.9;
       }
 
-      /* Картинка растянута почти до краёв круга */
       .tap-dark-coin-img {
         width: 100%;
         height: 100%;
